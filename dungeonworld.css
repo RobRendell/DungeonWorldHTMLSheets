@@ -1,0 +1,414 @@
+
+body {
+    font-size: 9.6pt;
+}
+
+svg {
+    width: 100%;
+    height: 100%;
+}
+
+.page {
+    page-break-inside: avoid;
+    position: relative;
+    margin-bottom: 10pt;
+}
+
+.floatColumns {
+    overflow: hidden;
+    width: 100%;
+}
+
+.column {
+    vertical-align: top;
+}
+
+.column.left60 {
+    width: 60%;
+    float: left;
+}
+
+.column.left50 {
+    width: 50%;
+    float: left;
+}
+
+.column.left40 {
+    width: 40%;
+    float: left;
+}
+
+.column.right {
+    overflow: hidden;
+}
+
+.lookDiv {
+    overflow: hidden;
+    vertical-align: top;
+}
+
+.heading {
+    color: white;
+    font-variant: small-caps;
+    font-weight: bold;
+    font-size: 14.4pt;
+    text-indent: 1.0em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'><path d='M 0 0 L 100 0 L 100 19 Q 50 15 0 19 Z' stroke='black' stroke-width='1' fill='black' /></svg> ");
+    position: relative;
+    height: 20pt;
+}
+
+.heading > * {
+    text-indent: 0;
+}
+
+.heading.left {
+    background-image: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg'> <g> <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'> <path d='M 0 0 L 100 0 L 100 19 Q 50 15 0 19 Z' stroke='black' stroke-width='1' fill='black' /> </svg> <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 35' preserveAspectRatio='xMaxYMin meet'> <path d='M 10 35 L 0 35 L 10 0 Z' stroke='white' stroke-width='1' fill='white' /> </svg> </g> </svg> ");
+}
+
+.heading.right {
+    background-image: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg'> <g> <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'> <path d='M 0 0 L 100 0 L 100 19 Q 50 15 0 19 Z' stroke='black' stroke-width='1' fill='black' /> </svg> <path d='M 10 0 L 0 35 L 0 0 Z' stroke='white' stroke-width='1' fill='white' /> </g> </svg> ");
+}
+
+.heading.mid {
+    background-image: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg'> <g> <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'> <path d='M 0 0 L 100 0 L 100 19 Q 50 15 0 19 Z' stroke='black' stroke-width='1' fill='black' /> </svg> <path d='M 10 0 L 0 35 L 0 0 Z' stroke='white' stroke-width='1' fill='white' /> <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 35' preserveAspectRatio='xMaxYMin meet'> <path d='M 10 35 L 0 35 L 10 0 Z' stroke='white' stroke-width='1' fill='white' /> </svg> </g> </svg> ");
+}
+
+.whiteBox {
+    display: inline-block;
+    width: 10em;
+    background-color: white;
+    border: 1px solid black;
+    color: black;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 0.85em;
+    padding-left: 0.2em;
+}
+
+.inverse {
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    line-height: 1.4em;
+    text-align: center;
+}
+
+.invisible {
+    display: none;
+}
+
+.statRow {
+    width: 100%;
+    text-align: center;
+}
+
+.statBox {
+    width: 16%;
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    font-size: 8pt;
+    font-variant: small-caps;
+    text-align: center;
+}
+
+.statBox > div {
+    margin: 0 auto;
+}
+
+.statBox > svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.statBox .condition {
+    width: 90%;
+}
+
+.statBox .condition svg {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 5px;
+}
+
+.statBox .value {
+    font-size: 14pt;
+    font-weight: bold;
+    width: 80%;
+}
+
+.combatRow {
+    width: 100%;
+    overflow: hidden;
+    padding-top: 30px;
+    padding-bottom: 32px;
+    position: relative;
+}
+
+.damageBox {
+    width: 33%;
+    float: left;
+}
+
+.diceIcon {
+    position: absolute;
+    right: 3em;
+    top: -35px;
+    width: 65px;
+    height: 86px;
+}
+
+.armourBox {
+    width: 33%;
+    float: left;
+}
+
+.armourIcon {
+    position: absolute;
+    right: 3em;
+    top: -28px;
+    width: 55px;
+    height: 86px;
+    display: table;
+    z-index: 1;
+}
+
+.armourIcon svg {
+    display: table-cell;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.armourValue {
+    color: black;
+    font-size: 14pt;
+    height: 100%;
+    display: table-cell;
+    vertical-align: middle;
+    width: 100%;
+    text-align: center;
+}
+
+.armourValue div {
+    font-size: 8pt;
+    font-weight: normal;
+    font-variant: normal;
+}
+
+.hpBox {
+    overflow: hidden;
+}
+
+.heartIcon {
+    position: absolute;
+    right: 7em;
+    top: -6px;
+    width: 72px;
+    height: 99px;
+}
+
+.hpMaxValue {
+    position: absolute;
+    z-index: 10;
+    bottom: 18px;
+    color: black;
+    font-size: 14pt;
+    width: 100%;
+    text-align: center;
+}
+
+.hpNote {
+    font-size: 8pt;
+    display: inline-block;
+    width: 8.2em;
+    float: right;
+    line-height: 10pt;
+}
+
+.section {
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+.section .heading {
+    margin-left: -6px;
+    margin-right: -6px;
+}
+
+.section + .section {
+    margin-top: 8pt;
+}
+
+.classBonds {
+    padding-left: 1em;
+}
+
+.classBonds li {
+    color: grey;
+    margin-top: 0.2em;
+    list-style-type: none;
+}
+
+.roll {
+    font-variant: small-caps;
+}
+
+dd + dt {
+    margin-top: 3pt;
+}
+
+.moves > dt {
+    font-size: 11.2pt;
+    font-variant: small-caps;
+    font-weight: bold;
+    margin-top: 0.4em;
+}
+
+.moves > dd {
+    margin-left: 0;
+}
+
+.checklist {
+    margin-top: 2pt;
+    margin-bottom: 2pt;
+}
+
+.checklist > li:before, .checklist > dt:before {
+    content: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' height='15' width='20'> <path d='M 3 3 L 15 3 L 15 15 L 3 15 Z' stroke='black' stroke-width='1' fill='black' /> <path d='M 0 1 L 12 1 L 12 13 L 0 13 Z' stroke='black' stroke-width='1' fill='white' /> </svg> ");
+}
+
+.checklist > li {
+    list-style-type: none;
+    margin-left: -1em;
+}
+
+.checklist > div {
+    margin-left: -2em;
+}
+
+.checklist > dt {
+    font-size: 11.2pt;
+    font-variant: small-caps;
+}
+
+.checklist > dd {
+    margin-left: 1em;
+}
+
+.checklist > li.ticked:before, dt.ticked:before {
+    content: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' height='15' width='20'> <path d='M 3 3 L 15 3 L 15 15 L 3 15 Z' stroke='black' stroke-width='1' fill='black' /> <path d='M 0 1 L 12 1 L 12 13 L 0 13 Z' stroke='black' stroke-width='1' fill='white' /> <path d='M 4 6 L 6 8 Q 11 0 15 0 Q 10 2 6 10 Q 3 8 3 7 Z' stroke='black' stroke-width='1' stroke-linejoin='round' fill='black' /> </svg> ");
+}
+
+.bonds {
+    padding-left: 0.1em;
+}
+
+.bonds li {
+    margin-top: 0.2em;
+    list-style-type: none;
+}
+
+.bonds.suggestion {
+    color: grey;
+}
+
+.flatlist {
+    margin-left: 20pt;
+}
+
+.twoColumn {
+    -moz-column-count: 2;
+    -moz-column-gap; 1em;
+    -webkit-column-count: 2;
+    -webkit-column-gap; 1em;
+}
+
+ul, dl {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.classBanner {
+    color: white;
+    font-variant: small-caps;
+    font-size: 40pt;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><g><svg viewBox='0 0 100 50' preserveAspectRatio='none'><path d='M 0 50 L 100 50 L 100 1 Q 50 8 0 1 Z' stroke='black' stroke-width='1' fill='black' /></svg><svg viewBox='0 0 200 50' preserveAspectRatio='xMaxYMin'><text x='1' y='45' fill='white' font-family='Verdana' font-weight='bold' font-size='16'>XP</text><text x='1' y='22' fill='white' font-family='Verdana' font-weight='bold' font-size='16' style='font-variant: small-caps'>Level</text></svg></g></svg> ");
+    position: relative;
+    height: 60pt;
+    padding-left: 1.0em;
+    padding-left: 2em;
+}
+
+.classIcon {
+    position: absolute;
+    left: 10px;
+    bottom: 5px;
+    height: 120px;
+    width: 100px;
+}
+
+.whiteBox.level {
+    font-size: 16pt;
+    position: absolute;
+    right: 0.5em;
+    top: 14px;
+    width: 210px;
+    height: 1em;
+}
+
+.whiteBox.xp {
+    font-size: 16pt;
+    position: absolute;
+    right: 0.5em;
+    bottom: 7px;
+    width: 250px;
+    height: 1em;
+}
+
+.oneColumn {
+    width: 50%;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+.itemNote {
+    margin-left: 2em;
+}
+
+.prerequisite {
+    font-style: italic;
+}
+
+@media print {
+
+    .page {
+	height: 100%;
+	margin-bottom: 0;
+    }
+
+    .classBanner {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+    }
+
+}
+
+.editable {
+    cursor: pointer;
+}
+
+.editable:hover {
+    background-color: #aaffaa;
+}
