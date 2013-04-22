@@ -3,7 +3,7 @@
 
 var FloatingMenu = Class.extend({
 
-    init: function (id) {
+    init: function init(id) {
         this.id = id;
         this.element = $("#" + this.id);
         var item = $("<h3/>");
@@ -11,7 +11,7 @@ var FloatingMenu = Class.extend({
         this.element.append(item);
     },
 
-    addMenuItem: function (text, callback) {
+    addMenuItem: function addMenuItem(text, callback) {
         var item = $("<div/>");
         if (callback) {
             var anchor = $("<a/>");
@@ -35,49 +35,50 @@ var FloatingMenu = Class.extend({
 
 var Modifier = Class.extend({
 
-    init: function (enabled) {
+    init: function init(enabled, value) {
         this.enabled = enabled;
+        this.value = value;
     },
 
-    getEnabled: function () {
+    getEnabled: function getEnabled() {
         return this.enabled;
     },
 
-    setField: function (field) {
+    setField: function setField(field) {
         this.field = field;
-        $.each(this.getDependents(), function (index, dependentField) {
+        $.each(this.getSourceFields(), function (index, dependentField) {
             dependentField.addDependentField(field);
         });
     },
 
-    getField: function () {
+    getField: function getField() {
         return this.field;
     },
 
-    apply: function (value) {
-        return value;
+    apply: function apply(value) {
+        return this.value;
     },
 
-    getDependents: function () {
+    getSourceFields: function getSourceFields() {
         return [];
     }
 
 });
 
-// -------------------- StatModifier calculates the modifier for a Dungeon World stat --------------------
+// -------------------- ModifierStat calculates the modifier for a Dungeon World stat --------------------
 
-var StatModifier = Modifier.extend({
+var ModifierStat = Modifier.extend({
 
     init: function(stat) {
         this._super(true);
         this.statField = Field.getField(stat);
     },
 
-    getDependents: function () {
+    getSourceFields: function getSourceFields() {
         return [ this.statField ];
     },
 
-    apply: function (value) {
+    apply: function apply(value) {
         var stat = this.statField.getValue();
         if (stat <= 3) {
             return value - 3;
@@ -98,20 +99,40 @@ var StatModifier = Modifier.extend({
 
 });
 
+// -------------------- ModifierClass is enabled when the className field has the given value --------------------
+
+var ModifierClass = Modifier.extend({
+
+    init: function init(classValue, value) {
+        this._super(true, value);
+        this.classValue = classValue;
+        this.classField = Field.getField('className');
+    },
+
+    getEnabled: function getEnabled() {
+        return (this.enabled && this.classField.getValue() == this.classValue);
+    },
+
+    getSourceFields: function getSourceFields() {
+        return [ this.classField ];
+    }
+
+});
+
 // ==================== A Field is a (possibly editable) value displayed on the sheet ====================
 
 var Field = Class.extend({
 
-    all: {},
+    all: new Hash(),
 
-    init: function (name) {
+    init: function init(name) {
         this.name = name;
         this.element = $("#" + name);
-        this.defaultValue = (this.element) ? this.element.text() : undefined;
+        this.defaultValue = (this.element) ? this.element.html() : undefined;
         this.value = this.defaultValue;
         this.baseValue = this.defaultValue;
-        this.all[name] = this;
-        this.dependentFields = [];
+        this.all.set(name, this);
+        this.dependentFields = new Hash();
         this.modifiers = [];
         this.editing = false;
     },
@@ -120,7 +141,7 @@ var Field = Class.extend({
         return this.value;
     },
 
-    startEditing: function () {
+    startEditing: function startEditing() {
         if (this.editing) {
             return;
         }
@@ -135,19 +156,19 @@ var Field = Class.extend({
         this.input.keydown($.proxy(this.checkFinishKey, this));
     },
 
-    renderEditing: function () {
+    renderEditing: function renderEditing() {
         return $("<input type='text'/>");
     },
 
-    resetInput: function () {
+    resetInput: function resetInput() {
         this.input.val(this.baseValue);
     },
 
-    blurEditing: function () {
+    blurEditing: function blurEditing() {
         this.inputField(this.getInputValue());
     },
 
-    checkFinishKey: function (eventObject) {
+    checkFinishKey: function checkFinishKey(eventObject) {
         if (eventObject.which == KeyEvent.DOM_VK_ESCAPE) {
             this.renderField();
             this.editing = false;
@@ -159,25 +180,26 @@ var Field = Class.extend({
         return true;
     },
 
-    getInputValue: function () {
+    getInputValue: function getInputValue() {
         return this.input.val();
     },
 
-    inputField: function (value) {
+    inputField: function inputField(value) {
         this.editing = false;
         this.updateValue(value);
     },
 
-    addModifier: function (modifier) {
+    addModifier: function addModifier(modifier) {
         modifier.setField(this);
         this.modifiers.push(modifier);
     },
 
-    addDependentField: function (field) {
-        this.dependentFields.push(field);
+    addDependentField: function addDependentField(field) {
+        var name = field.name;
+        this.dependentFields.set(name, (this.dependentFields[name] + 1) || 1);
     },
 
-    updateValue: function (value) {
+    updateValue: function updateValue(value) {
         this.baseValue = value;
         this.value = value;
         this.applyModifiers();
@@ -185,7 +207,7 @@ var Field = Class.extend({
         this.recalculateDependentFields();
     },
 
-    applyModifiers: function () {
+    applyModifiers: function applyModifiers() {
         for (var index = 0; index < this.modifiers.length; ++index) {
             var modifier = this.modifiers[index];
             if (modifier.getEnabled()) {
@@ -194,21 +216,22 @@ var Field = Class.extend({
         }
     },
 
-    renderField: function () {
+    renderField: function renderField() {
         this.element.html(this.value);
     },
 
-    recalculateDependentFields: function () {
-        $.each(this.dependentFields, function (index, dependentField) {
+    recalculateDependentFields: function recalculateDependentFields() {
+        $.each(this.dependentFields.keys(), function (index, fieldName) {
+            var dependentField = Field.getField(fieldName);
             dependentField.recalculate();
         });
     },
 
-    recalculate: function () {
+    recalculate: function recalculate() {
         this.updateValue(this.baseValue);
     },
 
-    reset: function () {
+    reset: function reset() {
         this.value = this.defaultValue;
         this.baseValue = this.defaultValue;
         this.element.html(this.value);
@@ -217,7 +240,7 @@ var Field = Class.extend({
 });
 
 Field.getField = function (name) {
-    return Field.prototype.all[name];
+    return Field.prototype.all.get(name);
 }
 
 Field.callAll = function (selector, callback) {
@@ -242,7 +265,7 @@ Field.click = function () {
 
 var FieldInt = Field.extend({
 
-    updateValue: function (value) {
+    updateValue: function updateValue(value) {
         this._super(parseInt(value) || 0);
     }
 
@@ -252,7 +275,7 @@ var FieldInt = Field.extend({
 
 var FieldBonus = FieldInt.extend({
 
-    renderField: function () {
+    renderField: function renderField() {
         if (this.value < 0) {
             this.element.html(this.value);
         } else {
@@ -266,20 +289,24 @@ var FieldBonus = FieldInt.extend({
 
 var FieldChoice = Field.extend({
 
-    init: function (id, options) {
+    init: function init(id, options) {
         this._super(id);
         this.options = options;
     },
 
-    getOptions: function () {
-        return this.options;
+    getOptions: function getOptions() {
+        if ($.isFunction(this.options)) {
+            return this.options();
+        } else {
+            return this.options;
+        }
     },
 
     renderEditing: function() {
         return $("<select/>");
     },
 
-    resetInput: function () {
+    resetInput: function resetInput() {
         this.input.html("");
         $.each(this.getOptions(), $.proxy(function (index, value) {
             var option = $("<option/>");
@@ -299,7 +326,7 @@ var FieldChoice = Field.extend({
 
 var FieldRange = FieldChoice.extend({
 
-    init: function (id, min, max) {
+    init: function init(id, min, max) {
         var options = [];
         for (var count = min; count <= max; ++count) {
             options.push(count);
@@ -307,7 +334,7 @@ var FieldRange = FieldChoice.extend({
         this._super(id, options);
     },
 
-    updateValue: function (value) {
+    updateValue: function updateValue(value) {
         this._super(parseInt(value));
     }
 
@@ -317,7 +344,7 @@ var FieldRange = FieldChoice.extend({
 
 function addStat(name, modifier) {
     new FieldRange(name, 3, 18);
-    new FieldBonus(modifier).addModifier(new StatModifier(name));
+    new FieldBonus(modifier).addModifier(new ModifierStat(name));
 }
 
 $(document).ready(function () {
@@ -330,7 +357,13 @@ $(document).ready(function () {
     addStat("wisdom", "wis");
     addStat("charisma", "cha");
 
-    new FieldChoice("className", [ "Bard", "Cleric", "Not really" ]);
+    new Field("diceIcon");
+    new Field("baseHp");
+
+    new Field("classIcon");
+    new FieldChoice("className", function () {
+        return CustomPanel.prototype.all.get('Class').keys().sort();
+    });
 
     $(".editable").click(Field.click);
 
@@ -343,5 +376,10 @@ $(document).ready(function () {
     menu.addMenuItem("Save to URL");
 
     menu.addMenuItem('<hr/>');
+
+    topPanel = new TopPanel();
+    menu.addMenuItem("Edit Source Data...", function () {
+        topPanel.showPanel();
+    });
 
 });

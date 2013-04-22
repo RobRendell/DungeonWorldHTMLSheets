@@ -1,0 +1,50 @@
+
+.customPanel
+{
+    position: fixed;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    background-color: white;
+    z-index: 200;
+    border: 1px solid black;
+    padding-left: 1em;
+    padding-right: 1em;
+    overflow: auto;
+    font-family: Arial, Verdana, Helvetica, sans-serif;
+}
+
+.customTable TD
+{
+    white-space: nowrap;
+}
+
+.customTable TD:first-child
+{
+    width: 1em;
+}
+
+.customTable .wrapped
+{
+    white-space: normal;
+}
+
+.hardcodedFeature
+{
+    color: #777777;
+}
+
+.expandingTree
+{
+    padding-left: 1.5em;
+}
+
+.treeControl
+{
+    cursor: pointer;
+    font-size: 150%;
+    position: relative;
+    top: 0.05em;
+}
+

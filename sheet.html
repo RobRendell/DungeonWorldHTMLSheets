@@ -4,11 +4,17 @@
     <title>Dungeon World Character</title>
 
     <link rel="stylesheet" type="text/css" href="dungeonworld.css" />
+    <link rel="stylesheet" type="text/css" href="custom.css" />
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.10.2.custom.min.css" />
 
     <script type="text/javascript" src="inherit.js"></script>
     <script type="text/javascript" src="jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.10.2.custom.min.js"></script>
     <script type="text/javascript" src="keyevent.js"></script>
+    <script type="text/javascript" src="hash.js"></script>
     <script type="text/javascript" src="dungeonworld.js"></script>
+    <script type="text/javascript" src="custom.js"></script>
+    <script type="text/javascript" src="core.js"></script>
 
 </head>
 <body>
@@ -219,7 +225,7 @@
 
 	<div class="damageBox heading left">
 	    <span>Damage</span>
-	    <span class="diceIcon"><svg><use xlink:href="#d6SVG" /></svg></span>
+	    <span class="diceIcon field" id="diceIcon"></span>
 	</div>
 
 	<div class="armourBox heading mid">
@@ -232,7 +238,7 @@
 
 	<div class="hpBox heading right">
 	    <span>HP</span>
-	    <span class="hpNote">Your max HP is<br/>6+Constitution</span>
+	    <span class="hpNote">Your max HP is<br/><span class="field" id="baseHp"></span>+Constitution</span>
 	</div>
 
 	<span class="heartIcon">
@@ -288,7 +294,7 @@
 
     <div class="classBanner">
 	<span class="field editable" id="className">Choose class</span>
-	<div class="classIcon" id="classIcon"><svg><use xlink:href="#bardSVG" /></svg></div>
+	<div class="classIcon field" id="classIcon"></div>
 	<div class="whiteBox level" id="level">&nbsp;</div>
 	<div class="whiteBox xp" id="xp">&nbsp;</div>
     </div>
