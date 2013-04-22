@@ -66,8 +66,13 @@ var ExpandingTree = Class.extend({
             this.control.html('&#8863;');
             this.expanded = true;
             if (!this.childDiv) {
-                this.childDiv = $('<div/>').appendTo(this.div);
-                this.expandFn(this);
+                this.childDiv = $('<div/>').addClass('treeContent').appendTo(this.div);
+                var names = this.expandFn(this);
+                $.each(names, $.proxy(function (index, name) {
+                    if (!this.children.contains(name)) {
+                        new ExpandingTree(this, name);
+                    }
+                }, this));
             }
             this.childDiv.show();
         }
@@ -92,7 +97,8 @@ var ExpandingTree = Class.extend({
     refresh: function refresh() {
         if (this.expanded) {
             if (this.expandFn) {
-                this.expandFn(this);
+                var names = this.expandFn(this);
+                // TODO what if names change?
             }
             this.children.each(function (key, value) {
                 value.refresh();
@@ -109,6 +115,8 @@ var CustomPanel = Class.extend({
     customPanels: new Hash(),
 
     all: new Hash(),
+
+    typeMap: new Hash(),
 
     init: function init(parentPanel, data, dontEval) {
         this.custom = false;
@@ -141,6 +149,10 @@ var CustomPanel = Class.extend({
 
     setData: function setData(data) {
         this.data = new Hash(data);
+        if (this.data.contains('subPanels')) {
+            var subPanelsData = this.data.remove('subPanels');
+            this.buildSubPanelsFromData(subPanelsData);
+        }
     },
 
     editSubPanel: function editSubPanel(evt, panel) {
@@ -156,7 +168,7 @@ var CustomPanel = Class.extend({
             this.subPanels.remove(panel.getId());
             CustomPanel.prototype.customPanels.remove(panel.getId());
             this.removeFromSource(panel.getSource(), panel.panelTitle, panel.getShortName());
-            this.refreshTable();
+            this.refreshSubPanelsTable();
             return true;
         }
         return false;
@@ -169,16 +181,21 @@ var CustomPanel = Class.extend({
         panel.compile(true);
     },
 
-    refreshTable: function refreshTable(panelDiv, subPanels) {
+    appendSubPanelsTable: function appendSubPanelsTable(panelDiv, subPanels) {
         panelDiv = panelDiv || this.panelDiv;
         if (!panelDiv) {
             return;
         }
-        var table = panelDiv.data('panelTable');
-        if (!table) {
-            table = $('<tbody/>').appendTo($('<table/>').addClass('customTable').appendTo(panelDiv));
+        if (!panelDiv.data('panelTable')) {
+            var table = $('<tbody/>').appendTo($('<table/>').addClass('customTable').appendTo(panelDiv));
             panelDiv.data('panelTable', table);
         }
+        this.refreshSubPanelsTable(panelDiv, subPanels);
+    },
+
+    refreshSubPanelsTable: function refreshSubPanelsTable(panelDiv, subPanels) {
+        panelDiv = panelDiv || this.panelDiv;
+        var table = panelDiv.data('panelTable');
         table.html('');
         subPanels = subPanels || this.subPanels;
         var keys = subPanels.keys().sort();
@@ -204,23 +221,30 @@ var CustomPanel = Class.extend({
         }, this));
     },
 
-    addSubPanel: function addSubPanel(evt, panelType, data) {
-        if (evt) {
-            evt.stopPropagation();
-            panelType = evt.data;
-        }
-        if (!data) {
-            data = {};
-        }
+    addSubPanel: function addSubPanel(panelType, data) {
+        data = data || {};
         data['source'] = this.getSource();
         var panel = new panelType(this, data, true);
-        panel.showPanel();
+        this.subPanels.set(panel.getId(), panel);
         return panel;
+    },
+
+    openSubPanel: function openSubPanel(evt) {
+        evt.stopPropagation();
+        var panelType = evt.data;
+        this.addSubPanel(panelType).showPanel();
+    },
+
+    buildSubPanelsFromData: function buildSubPanelsFromData(data) {
+        $.each(data, $.proxy(function (index, panelData) {
+            var panelType = CustomPanel.prototype.typeMap.get(panelData[0]);
+            this.addSubPanel(panelType, panelData[1]);
+        }, this));
     },
 
     addSubPanelButtons: function addSubPanelButtons(panelTypes) {
         $.each(panelTypes, $.proxy(function (index, panelType) {
-            $('<button/>').html('Add ' + panelType.prototype.panelTitle).click(panelType, $.proxy(this.addSubPanel, this)).appendTo(this.panelDiv);
+            $('<button/>').html('Add ' + panelType.prototype.panelTitle).click(panelType, $.proxy(this.openSubPanel, this)).appendTo(this.panelDiv);
         }, this));
     },
 
@@ -239,34 +263,44 @@ var CustomPanel = Class.extend({
         } else {
             this.panelDiv = $('<div/>').addClass('customPanel').appendTo(parentDiv);
         }
-        $('<h4/>').html(this.panelTitle).appendTo(this.panelDiv);
+        $('<h4/>').html(this.getPanelTitle()).appendTo(this.panelDiv);
         this.form = $('<form/>').appendTo(this.panelDiv);
         this.formTable = $('<tbody/>').appendTo($('<table/>').addClass('customTable').appendTo(this.form));
     },
 
+    getPanelTitle: function getPanelTitle() {
+        return this.panelTitle;
+    },
+
     appendFormTableRow: function appendFormTableRow(title, dataId, type, options) {
         var row = $('<tr/>').appendTo(this.formTable);
-        $('<th/>').html(title).appendTo(row);
+        var header = $('<th/>').html(title).appendTo(row);
         if (!type) {
             type = 'text';
         }
-        if (type == 'select') {
-            var input = $('<select/>').appendTo($('<td/>').appendTo(row)).attr('name', dataId);
+        var input;
+        if (!dataId) {
+            header.attr('colspan', 2);
+        } else if (type == 'select') {
+            input = $('<select/>').appendTo($('<td/>').appendTo(row)).attr('name', dataId);
             $.each(options, function (index, value) {
                 var option = $("<option/>").appendTo(input);
                 option.attr('value', value);
                 option.text(value);
             });
         } else if (type == 'textarea') {
-            var input = $('<textarea/>').appendTo($('<td/>').appendTo(row)).attr('name', dataId);
+            input = $('<textarea/>').appendTo($('<td/>').appendTo(row)).attr('name', dataId);
         } else {
-            var input = $('<input/>').appendTo($('<td/>').appendTo(row)).attr('name', dataId);
+            var cell = $('<td/>').appendTo(row);
+            input = $('<input/>').appendTo(cell).attr('name', dataId);
             input.attr('type', type);
             if (type == 'text' && options) {
-                input.autocomplete({ source: options, appendTo: 'td' });
+                var id = (this.getId() + "_" + dataId).replace(/ /g, '_');
+                cell.attr('id', id)
+                input.autocomplete({ source: options, appendTo: '#' + id });
             }
         }
-        if (this.data.contains(dataId)) {
+        if (input && this.data.contains(dataId)) {
             input.val(this.data.get(dataId));
         }
         return input;
@@ -277,7 +311,7 @@ var CustomPanel = Class.extend({
     },
 
     appendFooter: function appendFooter(subpanels) {
-        this.refreshTable();
+        this.appendSubPanelsTable();
         $('<hr/>').appendTo(this.panelDiv);
         if (subpanels) {
             this.addSubPanelButtons(subpanels);
@@ -289,22 +323,27 @@ var CustomPanel = Class.extend({
     },
 
     showPanel: function showPanel() {
-        this.renderPanel();
+        if (!this.panelDiv) {
+            this.renderPanel();
+        }
         this.panelDiv.show();
     },
 
     hidePanel: function hidePanel(evt) {
-        if (evt)
+        if (evt) {
             evt.stopPropagation();
-        if (this.panelDiv)
+        }
+        if (this.panelDiv) {
             this.panelDiv.hide();
+        }
     },
 
     getSource: function getSource() {
-        if (this.data.contains('source'))
+        if (this.data.contains('source')) {
             return this.data.get('source');
-        else
+        } else {
             return 'Custom';
+        }
     },
 
     getShortName: function getShortName() {
@@ -332,7 +371,10 @@ var CustomPanel = Class.extend({
         $.each(this.form.serializeArray(), function (index, pair) {
             result.set(pair.name, pair.value);
         });
-        this.setData(result);
+        if (this.subPanels) {
+            result.set('subPanels', this.subPanels);
+        }
+        this.data = result;
         return result;
     },
 
@@ -402,12 +444,22 @@ var CustomPanel = Class.extend({
             CustomPanel.prototype.customPanels.remove(oldId);
             CustomPanel.prototype.customPanels.set(panel.getId(), panel);
         }
+        panel.makeCustom();
         panel.addToSource(oldSource, oldTitle, oldShortName);
-        this.refreshTable();
+        this.refreshSubPanelsTable();
         return true;
     }
 
 });
+
+(function augmentExtend() {
+    var prevExtend = $.proxy(CustomPanel.extend, CustomPanel);
+    CustomPanel.extend = function extend(data) {
+        var newClass = prevExtend(data);
+        CustomPanel.prototype.typeMap.set(newClass.prototype.className, newClass);
+        return newClass;
+    }
+})();
 
 // -------------------- TopPanel is the top-level source data panel --------------------
 
@@ -425,49 +477,42 @@ var TopPanel = CustomPanel.extend({
         return 'Custom Panel';
     },
 
-    refreshTable: function refreshTable() {
-        var superRefresh = $.proxy(this._super, this);
-        if (this.tree) {
-            this.tree.refresh();
-        } else {
-            this.tree = new ExpandingTree(null, 'Sourcebooks', $.proxy(function (parentNode)
-            {
-                var names = [];
-                // return children nodes appropriate to parentNode
-                if (parentNode.level == 0) {
-                    Sourcebook.prototype.all.each(function (key, value) {
-                        if (value.data && value.data.length > 0)
-                            names.push(key);
-                    });
-                    names = names.sort();
-                } else if (parentNode.level == 1) {
-                    var sourceName = parentNode.text;
-                    var book = Sourcebook.prototype.all.get(sourceName);
-                    names = book.data.keys().sort(
-                            function (a, b)
-                            {
-                                if (a == "Custom" || a < b)
-                                    return -1;
-                                else if (b == "Custom" || a > b)
-                                    return 1;
-                                else
-                                    return 0;
-                            });
-                } else {
-                    var sourceName = parentNode.parentNode.text;
-                    var book = Sourcebook.prototype.all.get(sourceName);
-                    var type = parentNode.text;
-                    superRefresh(parentNode.childDiv, book.data.get(type));
-                }
-                $.each(names, function (index, name) {
-                    if (!parentNode.children.contains(name)) {
-                        new ExpandingTree(parentNode, name);
-                    }
+    appendTree: function appendTree() {
+        this.tree = new ExpandingTree(null, 'Sourcebooks', $.proxy(function (parentNode) {
+            var names = [];
+            if (parentNode.level == 0) {
+                Sourcebook.prototype.all.each(function (key, value) {
+                    if (value.data && value.data.length > 0)
+                        names.push(key);
                 });
-            }, this));
-            this.tree.div.appendTo(this.panelDiv);
-            this.tree.expand(true);
-        }
+                names = names.sort();
+            } else if (parentNode.level == 1) {
+                var sourceName = parentNode.text;
+                var book = Sourcebook.prototype.all.get(sourceName);
+                names = book.data.keys().sort(
+                        function (a, b)
+                        {
+                            if (a == "Custom" || a < b)
+                                return -1;
+                            else if (b == "Custom" || a > b)
+                                return 1;
+                            else
+                                return 0;
+                        });
+            } else {
+                var sourceName = parentNode.parentNode.text;
+                var book = Sourcebook.prototype.all.get(sourceName);
+                var type = parentNode.text;
+                this.appendSubPanelsTable(parentNode.childDiv, book.data.get(type));
+            }
+            return names;
+        }, this));
+        this.tree.div.appendTo(this.panelDiv);
+        this.tree.expand(true);
+    },
+
+    refreshSubPanelsTableTable: function refreshTable() {
+        this.tree.refresh();
     },
 
     commitPanel: function commitPanel(panel) {
@@ -483,9 +528,9 @@ var TopPanel = CustomPanel.extend({
         this._super();
         $("<p/>").text('The classes, moves and other features of characters are editable from this page.  Grey entries are pre-defined, while black are custom.  Custom features are saved in your character\'s save file, and will execute when that character is loaded.  Editing a pre-defined feature will override it with a custom version.').appendTo(this.panelDiv);
         $("<p/>").text('You can also create new custom features by clicking the buttons at the bottom of this page.').appendTo(this.panelDiv);
-        this.refreshTable();
+        this.appendTree();
         $('<hr/>').appendTo(this.panelDiv);
-        this.addSubPanelButtons([ CharacterClassPanel ]);
+        this.addSubPanelButtons([ CharacterClassPanel, RacePanel ]);
         $('<hr/>').appendTo(this.panelDiv);
         $('<button/>').text('Done').click($.proxy(this.hidePanel, this)).appendTo(this.panelDiv);
     }
@@ -529,6 +574,75 @@ var CharacterClassPanel = CustomPanel.extend({
             Field.getField('diceIcon').addModifier(new ModifierClass(name, diceIcon));
             Field.getField('baseHp').addModifier(new ModifierClass(name, this.data.get('baseHp')));
             Field.getField('classIcon').addModifier(new ModifierClass(name, this.data.get('classIcon')));
+        }
+    }
+
+});
+
+// -------------------- RacePanel defines race data --------------------
+
+var RacePanel = CustomPanel.extend({
+
+    panelTitle: 'Race',
+
+    className: 'RacePanel',
+
+    getShortName: function getShortName() {
+        return this.data.get('name');
+    },
+
+    renderPanel: function renderPanel() {
+        this._super();
+        this.appendFormTableRow('Race Name', 'name');
+        this.appendSourceRow();
+        this.appendFormTableRow('<br/>Race moves and suggested names for classes');
+        this.appendFooter([ RaceClassPanel ]);
+    },
+
+    compile: function compile(execute) {
+        if (!this.data.get("name"))
+            return "Race must have a name!";
+        if (execute) {
+            var name = this.data.get("name");
+        }
+    }
+
+});
+
+// -------------------- RaceClassPanel defines a single race+class move --------------------
+
+var RaceClassPanel = CustomPanel.extend({
+
+    panelTitle: 'Class data for Race',
+
+    className: 'RaceClassPanel',
+
+    getShortName: function getShortName() {
+        return this.data.get('className');
+    },
+
+    renderPanel: function renderPanel() {
+        this._super();
+        this.appendFormTableRow('Class Name', 'className', 'text', CustomPanel.prototype.all.get('Class').keys().sort());
+        this.appendFormTableRow('Move', 'move', 'textarea').attr('rows', 4).attr('cols', 120);
+        this.appendFormTableRow('Suggested names<br/>(comma-separated)', 'names').css('width', "100%");
+        this.appendFooter();
+    },
+
+    getPanelTitle: function getPanelTitle() {
+        return this.panelTitle + ' ' + this.parentPanel.form.find('input[name=name]').val();
+    },
+
+    addToSource: function addToSource(oldSource, oldTitle, oldShortName) {
+    },
+
+    compile: function compile(execute) {
+        if (!this.data.get("className"))
+            return "Class Move for Race must have a class name!";
+        if (!this.data.get("move"))
+            return "Class Move for Race must have a move!";
+        if (execute) {
+            var name = this.data.get("className");
         }
     }
 

@@ -30,15 +30,15 @@
     color: #777777;
 }
 
-.expandingTree {
-    padding-left: 1.5em;
-}
-
 .treeControl {
     cursor: pointer;
     font-size: 150%;
     position: relative;
     top: 0.05em;
+}
+
+.treeContent {
+    padding-left: 2em;
 }
 
 .iconDisplay {
