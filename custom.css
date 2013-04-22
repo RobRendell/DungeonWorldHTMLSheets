@@ -1,6 +1,5 @@
 
-.customPanel
-{
+.customPanel {
     position: fixed;
     top: 5%;
     left: 5%;
@@ -15,36 +14,33 @@
     font-family: Arial, Verdana, Helvetica, sans-serif;
 }
 
-.customTable TD
-{
+.customTable TD {
     white-space: nowrap;
 }
 
-.customTable TD:first-child
-{
+.customTable TD:first-child {
     width: 1em;
 }
 
-.customTable .wrapped
-{
+.customTable .wrapped {
     white-space: normal;
 }
 
-.hardcodedFeature
-{
+.hardcodedFeature {
     color: #777777;
 }
 
-.expandingTree
-{
+.expandingTree {
     padding-left: 1.5em;
 }
 
-.treeControl
-{
+.treeControl {
     cursor: pointer;
     font-size: 150%;
     position: relative;
     top: 0.05em;
 }
 
+.iconDisplay {
+    display: inline-block;
+}

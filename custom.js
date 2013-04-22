@@ -257,7 +257,8 @@ var CustomPanel = Class.extend({
                 option.attr('value', value);
                 option.text(value);
             });
-
+        } else if (type == 'textarea') {
+            var input = $('<textarea/>').appendTo($('<td/>').appendTo(row)).attr('name', dataId);
         } else {
             var input = $('<input/>').appendTo($('<td/>').appendTo(row)).attr('name', dataId);
             input.attr('type', type);
@@ -268,7 +269,7 @@ var CustomPanel = Class.extend({
         if (this.data.contains(dataId)) {
             input.val(this.data.get(dataId));
         }
-
+        return input;
     },
 
     appendSourceRow: function appendSourceRow() {
@@ -509,7 +510,12 @@ var CharacterClassPanel = CustomPanel.extend({
         this.appendSourceRow();
         this.appendFormTableRow('Damage Die', 'damage', 'select', [ 'd4', 'd6', 'd8', 'd10' ] );
         this.appendFormTableRow('Base HP', 'baseHp');
-        this.appendFormTableRow('Class Icon', 'classIcon');
+        var iconInput = this.appendFormTableRow('Class Icon', 'classIcon', 'textarea');
+        var iconDisplay = $('<div/>').addClass('iconDisplay').html(this.data.get('classIcon'));
+        iconInput.attr('rows', 10).after(iconDisplay);
+        iconInput.change(function (evt) {
+            iconDisplay.html(iconInput.val());
+        });
 
         this.appendFooter();
     },

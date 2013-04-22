@@ -3,8 +3,7 @@ body {
     font-size: 9.6pt;
 }
 
-#floatMenu
-{
+#floatMenu {
     position: absolute;
     top: 1em;
     left: 1em;
