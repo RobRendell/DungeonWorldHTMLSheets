@@ -1,0 +1,7 @@
+
+* Make class icon editor only the dimensions and path, rather than the entire SVG (anti-xss)
+
+* Fix expanding tree refresh (ideally fix the single monolithic expandFn)
+
+* Edit existing race (e.g. Dwarf, add Ranger) then hit Done => cannot call method 'html' of undefined.
+
