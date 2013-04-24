@@ -35,20 +35,35 @@ var FloatingMenu = Class.extend({
 
 var Modifier = Class.extend({
 
-    init: function init(enabled, value) {
+    init: function init(fieldId, enabled, value) {
+        this.fieldId = fieldId
         this.enabled = enabled;
         this.value = value;
+        this.add();
+    },
+
+    add: function add() {
+        if (!this.field) {
+            this.field = Field.getField(this.fieldId);
+            this.field.addModifier(this);
+            $.each(this.getSourceFields(), $.proxy(function (index, dependentField) {
+                dependentField.addDependentField(this.field);
+            }, this));
+        }
+    },
+
+    remove: function remove() {
+        if (this.field) {
+            this.field.removeModifier(this);
+            $.each(this.getSourceFields(), $.proxy(function (index, dependentField) {
+                dependentField.removeDependentField(this.field);
+            }, this));
+            this.field = null;
+        }
     },
 
     getEnabled: function getEnabled() {
         return this.enabled;
-    },
-
-    setField: function setField(field) {
-        this.field = field;
-        $.each(this.getSourceFields(), function (index, dependentField) {
-            dependentField.addDependentField(field);
-        });
     },
 
     getField: function getField() {
@@ -69,9 +84,9 @@ var Modifier = Class.extend({
 
 var ModifierStat = Modifier.extend({
 
-    init: function(stat) {
-        this._super(true);
+    init: function(fieldId, stat) {
         this.statField = Field.getField(stat);
+        this._super(fieldId, true);
     },
 
     getSourceFields: function getSourceFields() {
@@ -103,10 +118,10 @@ var ModifierStat = Modifier.extend({
 
 var ModifierClass = Modifier.extend({
 
-    init: function init(classValue, value) {
-        this._super(true, value);
+    init: function init(fieldId, classValue, value) {
         this.classValue = classValue;
         this.classField = Field.getField('className');
+        this._super(fieldId, true, value);
     },
 
     getEnabled: function getEnabled() {
@@ -190,13 +205,28 @@ var Field = Class.extend({
     },
 
     addModifier: function addModifier(modifier) {
-        modifier.setField(this);
         this.modifiers.push(modifier);
+    },
+
+    removeModifier: function removeModifier(modifier) {
+        var index = this.modifiers.indexOf(modifier);
+        if (index >= 0) {
+            this.modifiers.splice(index, 1);
+        }
     },
 
     addDependentField: function addDependentField(field) {
         var name = field.name;
-        this.dependentFields.set(name, (this.dependentFields[name] + 1) || 1);
+        this.dependentFields.set(name, (this.dependentFields.get(name) + 1) || 1);
+    },
+
+    removeDependentField: function removeDependentField(field) {
+        var name = field.name;
+        if (this.dependentFields.get(name) == 1) {
+            this.dependentFields.remove(name);
+        } else {
+            this.dependentFields.set(name, this.dependentFields.get(name) - 1);
+        }
     },
 
     updateValue: function updateValue(value) {
@@ -342,20 +372,15 @@ var FieldRange = FieldChoice.extend({
 
 // ==================== Initialise everything ====================
 
-function addStat(name, modifier) {
-    new FieldRange(name, 3, 18);
-    new FieldBonus(modifier).addModifier(new ModifierStat(name));
-}
-
 $(document).ready(function () {
 
     new Field("name");
-    addStat("strength", "str");
-    addStat("dexterity", "dex");
-    addStat("constitution", "con");
-    addStat("intelligence", "int");
-    addStat("wisdom", "wis");
-    addStat("charisma", "cha");
+    $.each([ "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma" ], function (index, stat) {
+        var modifier = stat.substring(0, 3);
+        new FieldRange(stat, 3, 18);
+        new FieldBonus(modifier);
+        new ModifierStat(modifier, stat)
+    });
 
     new Field("diceIcon");
     new Field("baseHp");

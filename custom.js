@@ -571,9 +571,9 @@ var CharacterClassPanel = CustomPanel.extend({
         if (execute) {
             var name = this.data.get("name");
             var diceIcon = "<svg><use xlink:href='#" + this.data.get('damage') + "SVG' /></svg>";
-            Field.getField('diceIcon').addModifier(new ModifierClass(name, diceIcon));
-            Field.getField('baseHp').addModifier(new ModifierClass(name, this.data.get('baseHp')));
-            Field.getField('classIcon').addModifier(new ModifierClass(name, this.data.get('classIcon')));
+            new ModifierClass('diceIcon', name, diceIcon);
+            new ModifierClass('baseHp', name, this.data.get('baseHp'));
+            new ModifierClass('classIcon', name, this.data.get('classIcon'));
         }
     }
 
