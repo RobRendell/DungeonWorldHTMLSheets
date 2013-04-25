@@ -39,7 +39,7 @@ Sourcebook.allBooks = function allBooks() {
 
 var ExpandingTree = Class.extend({
 
-    init: function init(parentNode, text, expandFn) {
+    init: function init(parentNode, text, controlFn) {
         this.parentNode = parentNode;
         this.text = text;
         this.children = new Hash();
@@ -47,11 +47,11 @@ var ExpandingTree = Class.extend({
         this.div = $("<div/>").addClass('expandingTree');
         if (!parentNode) {
             this.level = 0;
-            this.expandFn = expandFn;
+            this.controlFn = controlFn;
         } else {
             this.level = parentNode.level + 1;
             this.div.appendTo(parentNode.childDiv);
-            this.expandFn = parentNode.expandFn;
+            this.controlFn = parentNode.controlFn;
             parentNode.children.set(this.text, this);
         }
         if (this.text) {
@@ -67,7 +67,7 @@ var ExpandingTree = Class.extend({
             this.expanded = true;
             if (!this.childDiv) {
                 this.childDiv = $('<div/>').addClass('treeContent').appendTo(this.div);
-                var names = this.expandFn(this);
+                var names = this.controlFn(this, false);
                 $.each(names, $.proxy(function (index, name) {
                     if (!this.children.contains(name)) {
                         new ExpandingTree(this, name);
@@ -96,8 +96,8 @@ var ExpandingTree = Class.extend({
 
     refresh: function refresh() {
         if (this.expanded) {
-            if (this.expandFn) {
-                var names = this.expandFn(this);
+            if (this.controlFn) {
+                var names = this.controlFn(this, true);
                 // TODO what if names change?
             }
             this.children.each(function (key, value) {
@@ -123,6 +123,7 @@ var CustomPanel = Class.extend({
         this.parentPanel = parentPanel;
         this.subPanels = new Hash();
         this.setData(data);
+        this.compiled = [];
         if (!dontEval)
         {
             var problem = this.execCode();
@@ -362,6 +363,13 @@ var CustomPanel = Class.extend({
             return null;
     },
 
+    removeCompiled: function removeCompiled() {
+        $.each(this.compiled, function (index, modifier) {
+            modifier.remove();
+        });
+        this.compiled = [];
+    },
+
     compile: function compile(execute) {
         return 'Error - Custom panel ' + this.getId() + ' failed to override compile.';
     },
@@ -422,14 +430,14 @@ var CustomPanel = Class.extend({
     },
 
     // A sub-panel has been committed for us
-    commitPanel: function commitPanel(panel, execPanel) {
+    commitPanel: function commitPanel(panel) {
         var oldData = panel.data;
         var oldId = panel.getId();
         var oldSource = panel.getSource();
         var oldTitle = panel.panelTitle;
         var oldShortName = panel.getShortName();
         panel.collectData();
-        var problem = panel.compile(execPanel);
+        var problem = panel.compile(true);
         if (typeof(problem) == 'string')
         {
             // There's a problem - abort.
@@ -478,7 +486,7 @@ var TopPanel = CustomPanel.extend({
     },
 
     appendTree: function appendTree() {
-        this.tree = new ExpandingTree(null, 'Sourcebooks', $.proxy(function (parentNode) {
+        this.tree = new ExpandingTree(null, 'Sourcebooks', $.proxy(function (parentNode, refreshOnly) {
             var names = [];
             if (parentNode.level == 0) {
                 Sourcebook.prototype.all.each(function (key, value) {
@@ -489,21 +497,24 @@ var TopPanel = CustomPanel.extend({
             } else if (parentNode.level == 1) {
                 var sourceName = parentNode.text;
                 var book = Sourcebook.prototype.all.get(sourceName);
-                names = book.data.keys().sort(
-                        function (a, b)
-                        {
-                            if (a == "Custom" || a < b)
-                                return -1;
-                            else if (b == "Custom" || a > b)
-                                return 1;
-                            else
-                                return 0;
-                        });
+                names = book.data.keys().sort(function (a, b) {
+                    if (a == "Custom" || a < b) {
+                        return -1;
+                    } else if (b == "Custom" || a > b) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
             } else {
                 var sourceName = parentNode.parentNode.text;
                 var book = Sourcebook.prototype.all.get(sourceName);
                 var type = parentNode.text;
-                this.appendSubPanelsTable(parentNode.childDiv, book.data.get(type));
+                if (refreshOnly) {
+                    this.refreshSubPanelsTable(parentNode.childDiv, book.data.get(type));
+                } else {
+                    this.appendSubPanelsTable(parentNode.childDiv, book.data.get(type));
+                }
             }
             return names;
         }, this));
@@ -511,15 +522,12 @@ var TopPanel = CustomPanel.extend({
         this.tree.expand(true);
     },
 
-    refreshSubPanelsTableTable: function refreshTable() {
-        this.tree.refresh();
-    },
-
-    commitPanel: function commitPanel(panel) {
-        Field.edited = true;
-        panel.makeCustom();
-        var result = this._super(panel, true);
-        return result;
+    refreshSubPanelsTable: function refreshSubPanelsTable(panelDiv, subPanels) {
+        if (!panelDiv && !subPanels) {
+            this.tree.refresh();
+        } else {
+            this._super(panelDiv, subPanels);
+        }
     },
 
     renderPanel: function renderPanel() {
@@ -569,11 +577,12 @@ var CharacterClassPanel = CustomPanel.extend({
         if (!this.data.get("name"))
             return "Class must have a name!";
         if (execute) {
+            this.removeCompiled();
             var name = this.data.get("name");
             var diceIcon = "<svg><use xlink:href='#" + this.data.get('damage') + "SVG' /></svg>";
-            new ModifierClass('diceIcon', name, diceIcon);
-            new ModifierClass('baseHp', name, this.data.get('baseHp'));
-            new ModifierClass('classIcon', name, this.data.get('classIcon'));
+            this.compiled.push(new ModifierClass('diceIcon', name, diceIcon));
+            this.compiled.push(new ModifierClass('baseHp', name, this.data.get('baseHp')));
+            this.compiled.push(new ModifierClass('classIcon', name, this.data.get('classIcon')));
         }
     }
 
@@ -603,6 +612,7 @@ var RacePanel = CustomPanel.extend({
         if (!this.data.get("name"))
             return "Race must have a name!";
         if (execute) {
+            this.removeCompiled();
             var name = this.data.get("name");
         }
     }
@@ -642,6 +652,7 @@ var RaceClassPanel = CustomPanel.extend({
         if (!this.data.get("move"))
             return "Class Move for Race must have a move!";
         if (execute) {
+            this.removeCompiled();
             var name = this.data.get("className");
         }
     }

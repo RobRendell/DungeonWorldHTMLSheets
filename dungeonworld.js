@@ -76,6 +76,10 @@ var Modifier = Class.extend({
 
     getSourceFields: function getSourceFields() {
         return [];
+    },
+
+    toString: function toString() {
+        return this.value;
     }
 
 });
@@ -110,6 +114,10 @@ var ModifierStat = Modifier.extend({
         } else {
             return value + 3;
         }
+    },
+
+    toString: function toString() {
+        return 'Modifier for ' + this.statField.name;
     }
 
 });
@@ -130,6 +138,10 @@ var ModifierClass = Modifier.extend({
 
     getSourceFields: function getSourceFields() {
         return [ this.classField ];
+    },
+
+    toString: function toString() {
+        return this.classValue;
     }
 
 });
@@ -265,6 +277,14 @@ var Field = Class.extend({
         this.value = this.defaultValue;
         this.baseValue = this.defaultValue;
         this.element.html(this.value);
+    },
+
+    showModifiers: function showModifiers() {
+        var result = [];
+        $.each(this.modifiers, function (index, modifier) {
+            result.push(modifier.toString());
+        });
+        return result.join(", ");
     }
 
 });

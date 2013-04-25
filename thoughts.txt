@@ -5,4 +5,3 @@
 
 * Edit existing race (e.g. Dwarf, add Ranger) then hit Done => cannot call method 'html' of undefined.
 
-* Need to remove previous modifiers created by a panel when it's recompiled
