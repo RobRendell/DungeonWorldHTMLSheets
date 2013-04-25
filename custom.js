@@ -166,13 +166,18 @@ var CustomPanel = Class.extend({
         evt.stopPropagation();
         var panel = evt.data;
         if (confirm('Are you sure you want to delete ' + panel.getId() + '?')) {
-            this.subPanels.remove(panel.getId());
-            CustomPanel.prototype.customPanels.remove(panel.getId());
-            this.removeFromSource(panel.getSource(), panel.panelTitle, panel.getShortName());
+            panel.remove();
             this.refreshSubPanelsTable();
             return true;
         }
         return false;
+    },
+
+    remove: function remove() {
+        this.parentPanel.subPanels.remove(this.getId());
+        CustomPanel.prototype.customPanels.remove(this.getId());
+        this.removeFromSource(this.getSource(), this.panelTitle, this.getShortName());
+        this.all.get(this.panelTitle).remove(this.getShortName());
     },
 
     debugPanelCode: function debugPanelCode(evt) {
