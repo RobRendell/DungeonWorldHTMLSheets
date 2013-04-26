@@ -60,11 +60,6 @@ svg {
     overflow: hidden;
 }
 
-.lookDiv {
-    overflow: hidden;
-    vertical-align: top;
-}
-
 .heading {
     color: white;
     font-variant: small-caps;
@@ -434,4 +429,9 @@ ul, dl {
 
 .editable:hover {
     background-color: #aaffaa;
+}
+
+.suggestion:hover {
+    cursor: pointer;
+    background-color: #aaaaaa;
 }

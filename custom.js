@@ -566,6 +566,10 @@ var CharacterClassPanel = CustomPanel.extend({
         this._super();
         this.appendFormTableRow('Class Name', 'name');
         this.appendSourceRow();
+        this.appendFormTableRow('Look row 1', 'look1').attr('size', 50);
+        this.appendFormTableRow('Look row 2', 'look2').attr('size', 50);
+        this.appendFormTableRow('Look row 3', 'look3').attr('size', 50);
+        this.appendFormTableRow('Look row 4', 'look4').attr('size', 50);
         this.appendFormTableRow('Damage Die', 'damage', 'select', [ 'd4', 'd6', 'd8', 'd10' ] );
         this.appendFormTableRow('Base HP', 'baseHp');
         var iconInput = this.appendFormTableRow('Class Icon', 'classIcon', 'textarea');
@@ -584,6 +588,10 @@ var CharacterClassPanel = CustomPanel.extend({
         if (execute) {
             this.removeCompiled();
             var name = this.data.get("name");
+            this.compiled.push(new ModifierClass('lookSuggestions1', name, this.data.get('look1')));
+            this.compiled.push(new ModifierClass('lookSuggestions2', name, this.data.get('look2')));
+            this.compiled.push(new ModifierClass('lookSuggestions3', name, this.data.get('look3')));
+            this.compiled.push(new ModifierClass('lookSuggestions4', name, this.data.get('look4')));
             var diceIcon = "<svg><use xlink:href='#" + this.data.get('damage') + "SVG' /></svg>";
             this.compiled.push(new ModifierClass('diceIcon', name, diceIcon));
             this.compiled.push(new ModifierClass('baseHp', name, this.data.get('baseHp')));

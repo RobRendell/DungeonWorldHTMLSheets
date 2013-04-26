@@ -45,6 +45,9 @@ var Modifier = Class.extend({
     add: function add() {
         if (!this.field) {
             this.field = Field.getField(this.fieldId);
+            if (!this.field) {
+                throw "Unable to locate field with id " + this.fieldId;
+            }
             this.field.addModifier(this);
             $.each(this.getSourceFields(), $.proxy(function (index, dependentField) {
                 dependentField.addDependentField(this.field);
@@ -155,7 +158,7 @@ var Field = Class.extend({
     init: function init(name) {
         this.name = name;
         this.element = $("#" + name);
-        this.defaultValue = (this.element) ? this.element.html() : undefined;
+        this.defaultValue = (this.element) ? this.element.html() : this.emptyValue();
         this.value = this.defaultValue;
         this.baseValue = this.defaultValue;
         this.all.set(name, this);
@@ -164,7 +167,11 @@ var Field = Class.extend({
         this.editing = false;
     },
 
-    getValue: function() {
+    emptyValue: function emptyValue() {
+        return '';
+    },
+
+    getValue: function getValue() {
         return this.value;
     },
 
@@ -188,7 +195,11 @@ var Field = Class.extend({
     },
 
     resetInput: function resetInput() {
-        this.input.val(this.baseValue);
+        if (this.baseValue != '&nbsp;') {
+            this.input.val(this.baseValue);
+        } else {
+            this.input.val('');
+        }
     },
 
     blurEditing: function blurEditing() {
@@ -259,7 +270,11 @@ var Field = Class.extend({
     },
 
     renderField: function renderField() {
-        this.element.html(this.value);
+        if (this.value == '') {
+            this.element.html(this.defaultValue);
+        } else {
+            this.element.html(this.value);
+        }
     },
 
     recalculateDependentFields: function recalculateDependentFields() {
@@ -303,7 +318,7 @@ Field.callAll = function (selector, callback) {
     });
 }
 
-Field.click = function () {
+Field.clickEditable = function () {
     var id = $(this).attr("id");
     var field = Field.getField(id);
     if (field) {
@@ -314,6 +329,10 @@ Field.click = function () {
 // -------------------- FieldInt holds an integer value --------------------
 
 var FieldInt = Field.extend({
+
+    emptyValue: function emptyValue() {
+        return 0;
+    },
 
     updateValue: function updateValue(value) {
         this._super(parseInt(value) || 0);
@@ -390,11 +409,84 @@ var FieldRange = FieldChoice.extend({
 
 });
 
+// -------------------- FieldHideShow is a field that hides and shows depending on another field --------------------
+
+var FieldHideShow = Field.extend({
+
+    init: function init(name, otherFieldId, hideRegexp) {
+        this._super(name);
+        this.otherField = Field.getField(otherFieldId);
+        this.hideRegexp = hideRegexp;
+        this.otherField.addDependentField(this);
+    },
+
+    recalculate: function recalculate() {
+        this._super();
+        if (this.hideRegexp.exec(this.otherField.getValue())) {
+            this.element.hide();
+        } else {
+            this.element.show();
+        }
+    }
+
+});
+
+// -------------------- FieldSuggestion shows clickable suggestions for the FieldHideShow otherField --------------------
+
+var FieldSuggestion = FieldHideShow.extend({
+
+    init: function init(name, otherFieldId, hideRegexp, commaCount) {
+        this._super(name, otherFieldId, hideRegexp);
+        this.commaCount = commaCount;
+    },
+
+    renderField: function renderField() {
+        this.element.html('');
+        var first = true;
+        $.each(this.value.split(/,\s*/), $.proxy(function (index, value) {
+            if (value.indexOf('<') == 0) {
+                $(value).appendTo(this.element);
+            } else {
+                if (first) {
+                    first = false;
+                } else {
+                    this.element.append($('<span/>').text(', '));
+                }
+                $('<a/>').addClass('suggestion').text(value).click(value, $.proxy(this.applySuggestion, this)).appendTo(this.element);
+            }
+        }, this));
+    },
+
+    applySuggestion: function applySuggestion(evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+        var value = evt.data;
+        if (this.commaCount !== undefined) {
+            var prevValueArray = this.otherField.getValue().split(/,[\s]*/g);
+            while (prevValueArray.length < this.commaCount) {
+                prevValueArray.push('');
+            }
+            prevValueArray[this.commaCount] = value;
+            value = prevValueArray.join(', ');
+        }
+        this.otherField.updateValue(value);
+    }
+
+});
+
 // ==================== Initialise everything ====================
 
 $(document).ready(function () {
 
     new Field("name");
+    new FieldSuggestion("nameSuggestions", 'name', /[^\s]/);
+
+    new Field("look");
+    new FieldSuggestion("lookSuggestions1", 'look', /^\s*[^\s,]+\s*/, 0);
+    new FieldSuggestion("lookSuggestions2", 'look', /^[^,]*,\s*[^\s,]+/, 1);
+    new FieldSuggestion("lookSuggestions3", 'look', /^[^,]*,[^,]*,\s*[^\s,]+/, 2);
+    new FieldSuggestion("lookSuggestions4", 'look', /^[^,]*,[^,]*,[^,]*,\s*[^\s,]+/, 3);
+
     $.each([ "strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma" ], function (index, stat) {
         var modifier = stat.substring(0, 3);
         new FieldRange(stat, 3, 18);
@@ -410,7 +502,7 @@ $(document).ready(function () {
         return CustomPanel.prototype.all.get('Class').keys().sort();
     });
 
-    $(".editable").click(Field.click);
+    $(".editable").click(Field.clickEditable);
 
     var menu = new FloatingMenu('floatMenu');
     menu.addMenuItem("New character...", function () {
