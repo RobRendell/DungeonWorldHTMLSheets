@@ -149,6 +149,25 @@ var ModifierClass = Modifier.extend({
 
 });
 
+// -------------------- ModifierClassAppend appends its value --------------------
+
+var ModifierClassAppend = ModifierClass.extend({
+
+    init: function init(fieldId, classValue, value, between) {
+        this._super(fieldId, classValue, value);
+        this.between = between;
+    },
+
+    apply: function apply(value) {
+        if (value) {
+            return value + this.between + this.value;
+        } else {
+            return this.value;
+        }
+    }
+
+});
+
 // ==================== A Field is a (possibly editable) value displayed on the sheet ====================
 
 var Field = Class.extend({
@@ -172,7 +191,11 @@ var Field = Class.extend({
     },
 
     getValue: function getValue() {
-        return this.value;
+        if (this.value == '&nbsp;') {
+            return '';
+        } else {
+            return this.value;
+        }
     },
 
     startEditing: function startEditing() {
@@ -446,6 +469,7 @@ var FieldSuggestion = FieldHideShow.extend({
         $.each(this.value.split(/,\s*/), $.proxy(function (index, value) {
             if (value.indexOf('<') == 0) {
                 $(value).appendTo(this.element);
+                first = true;
             } else {
                 if (first) {
                     first = false;

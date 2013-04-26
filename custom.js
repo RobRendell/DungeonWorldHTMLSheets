@@ -373,6 +373,9 @@ var CustomPanel = Class.extend({
             modifier.remove();
         });
         this.compiled = [];
+        this.subPanels.each(function (key, subPanel) {
+            subPanel.removeCompiled();
+        });
     },
 
     compile: function compile(execute) {
@@ -627,6 +630,9 @@ var RacePanel = CustomPanel.extend({
         if (execute) {
             this.removeCompiled();
             var name = this.data.get("name");
+            this.subPanels.each(function (key, subPanel) {
+                subPanel.compile(execute);
+            });
         }
     }
 
@@ -666,7 +672,10 @@ var RaceClassPanel = CustomPanel.extend({
             return "Class Move for Race must have a move!";
         if (execute) {
             this.removeCompiled();
-            var name = this.data.get("className");
+            var className = this.data.get("className");
+            var raceName = this.parentPanel.data.get('name');
+            var nameSuggestions = '<em>' + raceName + ': </em>,' + this.data.get('names');
+            this.compiled.push(new ModifierClassAppend('nameSuggestions', className, nameSuggestions, ',<br/>,'));
         }
     }
 
