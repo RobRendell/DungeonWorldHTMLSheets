@@ -202,7 +202,7 @@ var CustomPanel = Class.extend({
     refreshSubPanelsTable: function refreshSubPanelsTable(panelDiv, subPanels) {
         panelDiv = panelDiv || this.panelDiv;
         var table = panelDiv.data('panelTable');
-        table.html('');
+        table.empty();
         subPanels = subPanels || this.subPanels;
         var keys = subPanels.keys().sort();
         $.each(keys, $.proxy(function (index, key) {
@@ -265,7 +265,7 @@ var CustomPanel = Class.extend({
         else
             parentDiv = $(document.body);
         if (this.panelDiv) {
-            this.panelDiv.html('');
+            this.panelDiv.empty();
         } else {
             this.panelDiv = $('<div/>').addClass('customPanel').appendTo(parentDiv);
         }
@@ -582,7 +582,7 @@ var CharacterClassPanel = CustomPanel.extend({
             iconDisplay.html(iconInput.val());
         });
 
-        this.appendFooter();
+        this.appendFooter([ ClassAlignmentPanel ]);
     },
 
     compile: function compile(execute) {
@@ -599,6 +599,49 @@ var CharacterClassPanel = CustomPanel.extend({
             this.compiled.push(new ModifierClass('diceIcon', name, diceIcon));
             this.compiled.push(new ModifierClass('baseHp', name, this.data.get('baseHp')));
             this.compiled.push(new ModifierClass('classIcon', name, this.data.get('classIcon')));
+            this.subPanels.each(function (key, subPanel) {
+                subPanel.compile(execute);
+            });
+        }
+    }
+
+});
+
+// -------------------- ClassAlignmentPanel defines a single race+class move --------------------
+
+var ClassAlignmentPanel = CustomPanel.extend({
+
+    panelTitle: 'Alignment move for Class',
+
+    className: 'ClassAlignmentPanel',
+
+    getShortName: function getShortName() {
+        return this.data.get('alignment');
+    },
+
+    renderPanel: function renderPanel() {
+        this._super();
+        this.appendFormTableRow('Alignment', 'alignment');
+        this.appendFormTableRow('Move', 'move', 'textarea').attr('rows', 4).attr('cols', 120);
+        this.appendFooter();
+    },
+
+    getPanelTitle: function getPanelTitle() {
+        return this.panelTitle + ' ' + this.parentPanel.form.find('input[name=name]').val();
+    },
+
+    addToSource: function addToSource(oldSource, oldTitle, oldShortName) {
+    },
+
+    compile: function compile(execute) {
+        if (!this.data.get("alignment"))
+            return "Alignment must have a name!";
+        if (!this.data.get("move"))
+            return "Alighment Move for Class must have a move!";
+        if (execute) {
+            this.removeCompiled();
+            var className = this.parentPanel.data.get('name');
+            this.compiled.push(new ModifierClassHashSet('alignment', className, this.data.get('alignment'), this.data.get('move')));
         }
     }
 
@@ -676,6 +719,7 @@ var RaceClassPanel = CustomPanel.extend({
             var raceName = this.parentPanel.data.get('name');
             var nameSuggestions = '<em>' + raceName + ': </em>,' + this.data.get('names');
             this.compiled.push(new ModifierClassAppend('nameSuggestions', className, nameSuggestions, ',<br/>,'));
+            this.compiled.push(new ModifierClassHashSet('race', className, raceName, this.data.get('move')));
         }
     }
 

@@ -168,6 +168,22 @@ var ModifierClassAppend = ModifierClass.extend({
 
 });
 
+// -------------------- ModifierClassHashSet sets values on a hash --------------------
+
+var ModifierClassHashSet = ModifierClass.extend({
+
+    init: function init(fieldId, classValue, key, value) {
+        this._super(fieldId, classValue, value);
+        this.key = key;
+    },
+
+    apply: function apply(value) {
+        value.set(this.key, this.value);
+        return value;
+    }
+
+});
+
 // ==================== A Field is a (possibly editable) value displayed on the sheet ====================
 
 var Field = Class.extend({
@@ -177,7 +193,7 @@ var Field = Class.extend({
     init: function init(name) {
         this.name = name;
         this.element = $("#" + name);
-        this.defaultValue = (this.element) ? this.element.html() : this.emptyValue();
+        this.defaultValue = this.emptyValue();
         this.value = this.defaultValue;
         this.baseValue = this.defaultValue;
         this.all.set(name, this);
@@ -187,7 +203,7 @@ var Field = Class.extend({
     },
 
     emptyValue: function emptyValue() {
-        return '';
+        return (this.element && this.element.html()) ? this.element.html() : '';
     },
 
     getValue: function getValue() {
@@ -399,7 +415,7 @@ var FieldChoice = Field.extend({
     },
 
     resetInput: function resetInput() {
-        this.input.html("");
+        this.input.empty();
         $.each(this.getOptions(), $.proxy(function (index, value) {
             var option = $("<option/>");
             option.attr('value', value);
@@ -464,7 +480,7 @@ var FieldSuggestion = FieldHideShow.extend({
     },
 
     renderField: function renderField() {
-        this.element.html('');
+        this.element.empty();
         var first = true;
         $.each(this.value.split(/,\s*/), $.proxy(function (index, value) {
             if (value.indexOf('<') == 0) {
@@ -498,6 +514,41 @@ var FieldSuggestion = FieldHideShow.extend({
 
 });
 
+// -------------------- FieldDescriptionList is a field that contains elements of a DL --------------------
+
+var FieldDescriptionList = Field.extend({
+
+    emptyValue: function emptyValue() {
+        return new Hash();
+    },
+
+    renderField: function renderField() {
+        this.element.empty();
+        var keys = this.value.keys().sort(function (a, b) {
+            var order = ['Lawful', 'Good', 'Neutral', 'Chaotic', 'Evil'];
+            var aIndex = order.indexOf(a);
+            var bIndex = order.indexOf(b);
+            if (aIndex < bIndex) {
+                return -1;
+            } else if (aIndex > bIndex) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        $.each(keys, $.proxy(function (index, key) {
+            $('<dt/>').html(key).appendTo(this.element);
+            $('<dd/>').html(this.value.get(key)).appendTo(this.element);
+        }, this));
+    },
+
+    recalculate: function recalculate() {
+        this.value.clear();
+        this._super();
+    }
+
+});
+
 // ==================== Initialise everything ====================
 
 $(document).ready(function () {
@@ -522,6 +573,10 @@ $(document).ready(function () {
     new Field("baseHp");
 
     new Field("classIcon");
+
+    new FieldDescriptionList("alignment");
+    new FieldDescriptionList("race");
+
     new FieldChoice("className", function () {
         return CustomPanel.prototype.all.get('Class').keys().sort();
     });
