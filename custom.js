@@ -301,7 +301,7 @@ var CustomPanel = Class.extend({
             input = $('<input/>').appendTo(cell).attr('name', dataId);
             input.attr('type', type);
             if (type == 'text' && options) {
-                var id = (this.getId() + "_" + dataId).replace(/ /g, '_');
+                var id = (this.getId() + "_" + dataId).replace(/ /g, '_').replace(/[^a-zA-Z_]/g, '');
                 cell.attr('id', id)
                 input.autocomplete({ source: options, appendTo: '#' + id });
             }
@@ -446,8 +446,7 @@ var CustomPanel = Class.extend({
         var oldShortName = panel.getShortName();
         panel.collectData();
         var problem = panel.compile(true);
-        if (typeof(problem) == 'string')
-        {
+        if (typeof(problem) == 'string') {
             // There's a problem - abort.
             alert(problem);
             panel.data = oldData;
@@ -455,8 +454,7 @@ var CustomPanel = Class.extend({
         }
         this.subPanels.remove(oldId);
         this.subPanels.set(panel.getId(), panel);
-        if (panel.custom && CustomPanel.prototype.customPanels.get(oldId) == panel)
-        {
+        if (panel.custom && CustomPanel.prototype.customPanels.get(oldId) == panel) {
             CustomPanel.prototype.customPanels.remove(oldId);
             CustomPanel.prototype.customPanels.set(panel.getId(), panel);
         }
@@ -493,39 +491,70 @@ var TopPanel = CustomPanel.extend({
         return 'Custom Panel';
     },
 
-    appendTree: function appendTree() {
-        this.tree = new ExpandingTree(null, 'Sourcebooks', $.proxy(function (parentNode, refreshOnly) {
-            var names = [];
-            if (parentNode.level == 0) {
-                Sourcebook.prototype.all.each(function (key, value) {
-                    if (value.data && value.data.length > 0)
-                        names.push(key);
-                });
-                names = names.sort();
-            } else if (parentNode.level == 1) {
-                var sourceName = parentNode.text;
-                var book = Sourcebook.prototype.all.get(sourceName);
-                names = book.data.keys().sort(function (a, b) {
-                    if (a == "Custom" || a < b) {
-                        return -1;
-                    } else if (b == "Custom" || a > b) {
-                        return 1;
-                    } else {
-                        return 0;
+    treeControlFn: function treeControlFn (parentNode, refreshOnly) {
+        var names = [];
+        if (parentNode.level == 0) {
+            Sourcebook.prototype.all.each(function (key, value) {
+                if (value.data && value.data.length > 0)
+                    names.push(key);
+            });
+            names = names.sort();
+        } else if (parentNode.level == 1) {
+            var sourceName = parentNode.text;
+            var book = Sourcebook.prototype.all.get(sourceName);
+            names = book.data.keys().sort(function (a, b) {
+                if (a == "Custom" || a < b) {
+                    return -1;
+                } else if (b == "Custom" || a > b) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+        } else {
+            var levelTwo = (parentNode.level == 3) ? parentNode.parentNode : parentNode;
+            var sourceName = levelTwo.parentNode.text;
+            var type = levelTwo.text;
+            var book = Sourcebook.prototype.all.get(sourceName);
+            var entries = book.data.get(type);
+            if (parentNode.level == 2 && entries.length > 25) {
+                var previous = null;
+                $.each(entries.keys().sort(), function (index, name) {
+                    var firstSpace = name.indexOf(' ');
+                    var firstWord = (firstSpace >= 0) ? name.slice(0, firstSpace + 1) : name;
+                    if (firstWord != previous) {
+                        names.push(firstWord);
+                        previous = firstWord;
                     }
                 });
-            } else {
-                var sourceName = parentNode.parentNode.text;
-                var book = Sourcebook.prototype.all.get(sourceName);
-                var type = parentNode.text;
+                // Don't bother doing the extra level for things that don't break down nicely.
+                if (names.length > entries.length/2 || names.length < 3) {
+                    names = [];
+                }
+            } else if (parentNode.level == 3) {
+                // Filter entries by first word
+                var firstWord = parentNode.text;
+                var newEntries = new Hash();
+                entries.each(function (name, entry) {
+                    if (name.indexOf(firstWord) == 0) {
+                        newEntries.set(name, entry);
+                    }
+                });
+                entries = newEntries;
+            }
+            if (names.length == 0) {
                 if (refreshOnly) {
-                    this.refreshSubPanelsTable(parentNode.childDiv, book.data.get(type));
+                    this.refreshSubPanelsTable(parentNode.childDiv, entries);
                 } else {
-                    this.appendSubPanelsTable(parentNode.childDiv, book.data.get(type));
+                    this.appendSubPanelsTable(parentNode.childDiv, entries);
                 }
             }
-            return names;
-        }, this));
+        }
+        return names;
+    },
+
+    appendTree: function appendTree() {
+        this.tree = new ExpandingTree(null, 'Sourcebooks', $.proxy(this.treeControlFn, this));
         this.tree.div.appendTo(this.panelDiv);
         this.tree.expand(true);
     },
@@ -546,7 +575,7 @@ var TopPanel = CustomPanel.extend({
         $("<p/>").text('You can also create new custom features by clicking the buttons at the bottom of this page.').appendTo(this.panelDiv);
         this.appendTree();
         $('<hr/>').appendTo(this.panelDiv);
-        this.addSubPanelButtons([ CharacterClassPanel, RacePanel ]);
+        this.addSubPanelButtons([ CharacterClassPanel, RacePanel, ClassMovePanel ]);
         $('<hr/>').appendTo(this.panelDiv);
         $('<button/>').text('Done').click($.proxy(this.hidePanel, this)).appendTo(this.panelDiv);
     }
@@ -758,6 +787,96 @@ var RaceClassPanel = CustomPanel.extend({
             var nameSuggestions = '<em>' + raceName + ': </em>,' + this.data.get('names');
             this.compiled.push(new ModifierClassAppend('nameSuggestions', className, nameSuggestions, ',<br/>,'));
             this.compiled.push(new ModifierClassHashSet('race', className, raceName, this.data.get('move')));
+        }
+    }
+
+});
+
+// -------------------- ClassMovePanel defines an initial or advanced move --------------------
+
+var ClassMovePanel = CustomPanel.extend({
+
+    panelTitle: 'Class Move',
+
+    className: 'ClassMovePanel',
+
+    getShortName: function getShortName() {
+        var className = this.data.get('className') || '';
+        var result = className.replace(/^The /, '');
+        if (this.data.get('minLevel') == 'Starting') {
+            result += '  Starting Move';
+        } else {
+            result += ' Advanced Move (';
+            if (this.data.get('maxLevel') > this.data.get('minLevel')) {
+                result += 'levels ' + this.data.get('minLevel') + '&ndash;' + this.data.get('maxLevel');
+            } else {
+                result += 'level ' + this.data.get('minLevel');
+            }
+            result += ')';
+        }
+        result += ' "' + this.data.get('name') + '"';
+        return result;
+    },
+
+    moveNamesForClass: function movesForClass(className) {
+        var className = className.replace(/^The /, '') + ' ';
+        var result = [];
+        var movePanels = CustomPanel.prototype.all.get('Class Move');
+        var movePanelNames = movePanels.keys();
+        $.each(movePanelNames, function (index, moveShortName) {
+            if (moveShortName.indexOf(className) == 0) {
+                var panel = movePanels.get(moveShortName);
+                var moveName = panel.data.get('name');
+                result.push(moveName);
+            }
+        });
+        return result.sort();
+    },
+
+    renderPanel: function renderPanel() {
+        this._super();
+        this.appendSourceRow();
+        var className = this.appendFormTableRow('Class Name', 'className', 'text', CustomPanel.prototype.all.get('Class').keys().sort());
+        var minLevel = this.appendFormTableRow('Minimum level', 'minLevel', 'select', ['Starting', 2, 6]);
+        var maxLevelRow = this.appendFormTableRow('Maximum level', 'maxLevel', 'select', [2, 10]).closest('tr');
+        minLevel.change(function (evt) {
+            var value = minLevel.val();
+            if (value == 'Starting') {
+                maxLevelRow.hide();
+            } else {
+                maxLevelRow.show();
+            }
+        });
+        minLevel.change();
+        this.appendFormTableRow('Move Name', 'name').css('width', '15em');
+        var prereqType = this.appendFormTableRow('Prerequisite', 'prerequisiteType', 'select', ['None', 'Replaces', 'Requires']);
+        var prereq = this.appendFormTableRow('', 'prerequisite', 'text', this.moveNamesForClass(className.val()));
+        className.change($.proxy(function (evt) {
+            prereq.autocomplete('option', 'source', this.moveNamesForClass(className.val()));
+        }, this));
+        prereqRow = prereq.closest('tr');
+        prereqType.change(function (evt) {
+            var value = prereqType.val();
+            if (value == 'None') {
+                prereqRow.hide();
+            } else {
+                prereqRow.show();
+            }
+        });
+        prereqType.change();
+        this.appendFormTableRow('Move', 'move', 'textarea').attr('rows', 4).attr('cols', 120);
+        this.appendFooter();
+    },
+
+    compile: function compile(execute) {
+        if (!this.data.get("className"))
+            return "Class Move must nominate a class name!";
+        if (!this.data.get("name"))
+            return "Class Move must have a name!";
+        if (!this.data.get("move"))
+            return "Class Move must have a move!";
+        if (execute) {
+            this.removeCompiled();
         }
     }
 
