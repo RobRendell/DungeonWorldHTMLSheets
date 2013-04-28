@@ -803,8 +803,11 @@ var ClassMovePanel = CustomPanel.extend({
     getShortName: function getShortName() {
         var className = this.data.get('className') || '';
         var result = className.replace(/^The /, '');
-        if (this.data.get('minLevel') == 'Starting') {
+        var minLevel = this.data.get('minLevel');
+        if (minLevel == 'Starting') {
             result += '  Starting Move';
+        } else if (minLevel == 1) {
+            result += '  Optional Starting Move';
         } else {
             result += ' Advanced Move (';
             if (this.data.get('maxLevel') > this.data.get('minLevel')) {
@@ -837,11 +840,11 @@ var ClassMovePanel = CustomPanel.extend({
         this._super();
         this.appendSourceRow();
         var className = this.appendFormTableRow('Class Name', 'className', 'text', CustomPanel.prototype.all.get('Class').keys().sort());
-        var minLevel = this.appendFormTableRow('Minimum level', 'minLevel', 'select', ['Starting', 2, 6]);
+        var minLevel = this.appendFormTableRow('Minimum level', 'minLevel', 'select', ['Starting', 1, 2, 6]);
         var maxLevelRow = this.appendFormTableRow('Maximum level', 'maxLevel', 'select', [2, 10]).closest('tr');
         minLevel.change(function (evt) {
             var value = minLevel.val();
-            if (value == 'Starting') {
+            if (value == 'Starting' || value == 1) {
                 maxLevelRow.hide();
             } else {
                 maxLevelRow.show();
