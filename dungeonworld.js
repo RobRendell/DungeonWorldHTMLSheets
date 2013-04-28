@@ -159,7 +159,10 @@ var ModifierClassAppend = ModifierClass.extend({
     },
 
     apply: function apply(value) {
-        if (value) {
+        if (value instanceof Array) {
+            value.push(this.value);
+            return value;
+        } else if (value) {
             return value + this.between + this.value;
         } else {
             return this.value;
@@ -193,7 +196,7 @@ var Field = Class.extend({
     init: function init(name) {
         this.name = name;
         this.element = $("#" + name);
-        this.defaultValue = this.emptyValue();
+        this.defaultValue = this.getDefaultValue();
         this.value = this.defaultValue;
         this.baseValue = this.defaultValue;
         this.all.set(name, this);
@@ -202,8 +205,16 @@ var Field = Class.extend({
         this.editing = false;
     },
 
+    getDefaultValue: function getDefaultValue() {
+        if (this.element && this.element.html() && /[^\s]/.exec(this.element.html())) {
+            return this.element.html() 
+        } else {
+            return this.emptyValue();
+        }
+    },
+
     emptyValue: function emptyValue() {
-        return (this.element && this.element.html()) ? this.element.html() : '';
+        return '';
     },
 
     getValue: function getValue() {
@@ -324,7 +335,7 @@ var Field = Class.extend({
     },
 
     recalculate: function recalculate() {
-        this.updateValue(this.baseValue);
+        this.updateValue(this.emptyValue());
     },
 
     reset: function reset() {
@@ -518,33 +529,45 @@ var FieldSuggestion = FieldHideShow.extend({
 
 var FieldDescriptionList = Field.extend({
 
+    init: function init(name, sortFn) {
+        this._super(name);
+        this.sortFn = sortFn;
+    },
+
     emptyValue: function emptyValue() {
         return new Hash();
     },
 
     renderField: function renderField() {
         this.element.empty();
-        var keys = this.value.keys().sort(function (a, b) {
-            var order = ['Lawful', 'Good', 'Neutral', 'Chaotic', 'Evil'];
-            var aIndex = order.indexOf(a);
-            var bIndex = order.indexOf(b);
-            if (aIndex < bIndex) {
-                return -1;
-            } else if (aIndex > bIndex) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
+        var keys = this.value.keys().sort(this.sortFn);
         $.each(keys, $.proxy(function (index, key) {
             $('<dt/>').html(key).appendTo(this.element);
             $('<dd/>').html(this.value.get(key)).appendTo(this.element);
         }, this));
+    }
+
+});
+
+// -------------------- FieldUnorderedList is a field that contains elements of a UL --------------------
+
+var FieldUnorderedList = Field.extend({
+
+    init: function init(name, sortFn) {
+        this._super(name);
+        this.sortFn = sortFn;
     },
 
-    recalculate: function recalculate() {
-        this.value.clear();
-        this._super();
+    emptyValue: function emptyValue() {
+        return [];
+    },
+
+    renderField: function renderField() {
+        this.element.empty();
+        var values = this.value.sort(this.sortFn);
+        $.each(values, $.proxy(function (index, value) {
+            $('<dt/>').html(value).appendTo(this.element);
+        }, this));
     }
 
 });
@@ -574,8 +597,20 @@ $(document).ready(function () {
 
     new Field("classIcon");
 
-    new FieldDescriptionList("alignment");
+    new FieldDescriptionList("alignment", function (a, b) {
+        var order = ['Lawful', 'Good', 'Neutral', 'Chaotic', 'Evil'];
+        var aIndex = order.indexOf(a);
+        var bIndex = order.indexOf(b);
+        if (aIndex < bIndex) {
+            return -1;
+        } else if (aIndex > bIndex) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
     new FieldDescriptionList("race");
+    new FieldUnorderedList("bonds");
 
     new FieldChoice("className", function () {
         return CustomPanel.prototype.all.get('Class').keys().sort();

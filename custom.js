@@ -569,20 +569,20 @@ var CharacterClassPanel = CustomPanel.extend({
         this._super();
         this.appendFormTableRow('Class Name', 'name');
         this.appendSourceRow();
-        this.appendFormTableRow('Look row 1', 'look1').attr('size', 50);
-        this.appendFormTableRow('Look row 2', 'look2').attr('size', 50);
-        this.appendFormTableRow('Look row 3', 'look3').attr('size', 50);
-        this.appendFormTableRow('Look row 4', 'look4').attr('size', 50);
+        this.appendFormTableRow('Look suggestions 1', 'look1').attr('size', 50);
+        this.appendFormTableRow('Look suggestions 2', 'look2').attr('size', 50);
+        this.appendFormTableRow('Look suggestions 3', 'look3').attr('size', 50);
+        this.appendFormTableRow('Look suggestions 4', 'look4').attr('size', 50);
         this.appendFormTableRow('Damage Die', 'damage', 'select', [ 'd4', 'd6', 'd8', 'd10' ] );
         this.appendFormTableRow('Base HP', 'baseHp');
         var iconInput = this.appendFormTableRow('Class Icon', 'classIcon', 'textarea');
         var iconDisplay = $('<div/>').addClass('iconDisplay').html(this.data.get('classIcon'));
-        iconInput.attr('rows', 10).after(iconDisplay);
+        iconInput.attr('rows', 10).attr('cols', 80).after(iconDisplay);
         iconInput.change(function (evt) {
             iconDisplay.html(iconInput.val());
         });
 
-        this.appendFooter([ ClassAlignmentPanel ]);
+        this.appendFooter([ ClassAlignmentPanel, ClassBondPanel ]);
     },
 
     compile: function compile(execute) {
@@ -607,16 +607,16 @@ var CharacterClassPanel = CustomPanel.extend({
 
 });
 
-// -------------------- ClassAlignmentPanel defines a single race+class move --------------------
+// -------------------- ClassAlignmentPanel defines a single class-specific alignment move --------------------
 
 var ClassAlignmentPanel = CustomPanel.extend({
 
-    panelTitle: 'Alignment move for Class',
+    panelTitle: 'Alignment Move for Class',
 
     className: 'ClassAlignmentPanel',
 
     getShortName: function getShortName() {
-        return this.data.get('alignment');
+        return 'Alignment Move "' + this.data.get('alignment') + '"';
     },
 
     renderPanel: function renderPanel() {
@@ -642,6 +642,44 @@ var ClassAlignmentPanel = CustomPanel.extend({
             this.removeCompiled();
             var className = this.parentPanel.data.get('name');
             this.compiled.push(new ModifierClassHashSet('alignment', className, this.data.get('alignment'), this.data.get('move')));
+        }
+    }
+
+});
+
+// -------------------- ClassBondPanel defines a single class-specific bond --------------------
+
+var ClassBondPanel = CustomPanel.extend({
+
+    panelTitle: 'Initial Bond for Class',
+
+    className: 'ClassBondPanel',
+
+    getShortName: function getShortName() {
+        return 'Initial Bond "' + this.data.get('bond') + '"';
+    },
+
+    renderPanel: function renderPanel() {
+        this._super();
+        this.appendFormTableRow('Bond', 'bond').css('width', '60em');
+        this.appendFooter();
+    },
+
+    getPanelTitle: function getPanelTitle() {
+        return this.panelTitle + ' ' + this.parentPanel.form.find('input[name=name]').val();
+    },
+
+    addToSource: function addToSource(oldSource, oldTitle, oldShortName) {
+    },
+
+    compile: function compile(execute) {
+        if (!this.data.get("bond"))
+            return "Bond may not be empty!";
+        if (execute) {
+            this.removeCompiled();
+            var className = this.parentPanel.data.get('name');
+            var bond = this.data.get('bond').replace(/_/, '________');
+            this.compiled.push(new ModifierClassAppend('bonds', className, bond));
         }
     }
 

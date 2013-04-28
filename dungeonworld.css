@@ -260,6 +260,11 @@ svg {
     margin-top: 8pt;
 }
 
+#initialBondsInfo {
+    font-size: 8pt;
+    font-style: italic;
+}
+
 .classBonds {
     padding-left: 1em;
 }
