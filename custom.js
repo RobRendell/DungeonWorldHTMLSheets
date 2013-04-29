@@ -868,6 +868,8 @@ var ClassMovePanel = CustomPanel.extend({
         });
         prereqType.change();
         this.appendFormTableRow('Move', 'move', 'textarea').attr('rows', 4).attr('cols', 120);
+        this.appendFormTableRow('Display order is a number, used to sort moves (lower numbers occur first).  Moves with the same display order are sorted alphabetically.  Moves with blank display orders are treated as having a value of 1000.  A Starting move with the special value of LHS is shown in the left-hand column.');
+        this.appendFormTableRow('Display order', 'order');
         this.appendFooter();
     },
 

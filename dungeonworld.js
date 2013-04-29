@@ -566,8 +566,77 @@ var FieldUnorderedList = Field.extend({
         this.element.empty();
         var values = this.value.sort(this.sortFn);
         $.each(values, $.proxy(function (index, value) {
-            $('<dt/>').html(value).appendTo(this.element);
+            $('<li/>').html(value).appendTo(this.element);
         }, this));
+    }
+
+});
+
+// -------------------- FieldMoveChoice is a field that lists matching moves --------------------
+
+var FieldMoveChoice = Field.extend({
+
+    init: function init(name, minLevel, maxLevel, textBefore, textAfter, lhsElementId) {
+        this._super(name);
+        this.classField = Field.getField("className");
+        this.classField.addDependentField(this);
+        this.minLevel = minLevel;
+        this.maxLevel = maxLevel;
+        this.textBefore = textBefore;
+        this.textAfter = textAfter;
+        this.lhsElement = $('#' + lhsElementId);
+    },
+
+    getMatchingMoves: function getMatchingMoves() {
+        var className = this.classField.getValue();
+        var allMoves = CustomPanel.prototype.all.get('Class Move');
+        var result = [];
+        allMoves.each($.proxy(function (moveId, movePanel) {
+            if (className == movePanel.data.get('className') &&
+                    this.minLevel == movePanel.data.get('minLevel') &&
+                    (!this.maxLevel || this.maxLevel == movePanel.data.get('maxLevel'))) {
+                result.push(movePanel);
+            }
+        }, this));
+        return result;
+    },
+
+    sortFn: function sortFn(a, b) {
+        var aOrder = a.data.get('order');
+        var aName = a.data.get('name');
+        if (aOrder === '' || aOrder === undefined) {
+            aOrder = 1000;
+        }
+        var bOrder = b.data.get('order');
+        var bName = b.data.get('name');
+        if (bOrder === '' || bOrder === undefined) {
+            bOrder = 1000;
+        }
+        return (aOrder < bOrder) ? -1 : (aOrder > bOrder) ? 1 : (aName < bName) ? -1 : (aName > bName) ? 1 : 0;
+    },
+
+    renderField: function renderField() {
+        this.element.empty();
+        this.lhsElement.empty();
+        var result = this.getMatchingMoves();
+        result.sort(this.sortFn);
+        if (result.length > 0 && this.textBefore) {
+            this.element.append($('<b/>').html(this.textBefore));
+        }
+        $.each(result, $.proxy(function (index, movePanel) {
+            var name = movePanel.data.get("name");
+            var move = movePanel.data.get("move");
+            if (this.lhsElement.length > 0 && movePanel.data.get('order') == 'LHS') {
+                $('<div/>').addClass('heading').addClass('left').html(name).appendTo(this.lhsElement);
+                $('<div/>').html(move).appendTo(this.lhsElement);
+            } else {
+                $('<dt/>').html(name).appendTo(this.element);
+                $('<dd/>').html(move).appendTo(this.element);
+            }
+        }, this));
+        if (result.length > 0 && this.textAfter) {
+            this.element.append($('<b/>').html(this.textAfter));
+        }
     }
 
 });
@@ -615,6 +684,12 @@ $(document).ready(function () {
     new FieldChoice("className", function () {
         return CustomPanel.prototype.all.get('Class').keys().sort();
     });
+
+    new FieldMoveChoice("startingMoveChoice", 1, undefined, "Choose one of these to start with:", "You also start with all of these:");
+    new FieldMoveChoice("startingMoves", "Starting", undefined, undefined, undefined, "startingMoveLHS");
+    new FieldMoveChoice("advancedMoves2nd", 2, 2, "You may take this move only if it is your first advancement.");
+    new FieldMoveChoice("advancedMovesLower", 2, 10);
+    new FieldMoveChoice("advancedMovesHigher", 6, 10);
 
     $(".editable").click(Field.clickEditable);
 

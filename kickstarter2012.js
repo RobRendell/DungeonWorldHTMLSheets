@@ -30,7 +30,7 @@ $(document).ready(function () {
 
     new ClassMovePanel(topPanel, {source: "Kickstarter 2012", className: "The Barbarian", minLevel: 2, maxLevel: 10, name: "What Is Best In Life", move: "At the end of a session, if during this session you have crushed your enemies, seen them driven before you, or have heard the lamentations of their kinfolk mark XP.", prerequisiteType: "None", prerequisite: "" });
 
-    new ClassMovePanel(topPanel, {source: "Kickstarter 2012", className: "The Barbarian", minLevel: 2, maxLevel: 10, name: "Wide-Wanderer", move: "You’ve travelled the wide world over. When you arrive someplace ask the GM about any important traditions, rituals, and so on, they’ll tell you what you need to know.", prerequisiteType: "None", prerequisite: "" });
+    new ClassMovePanel(topPanel, {source: "Kickstarter 2012", className: "The Barbarian", minLevel: 2, maxLevel: 10, name: "Wide-Wanderer", move: "You've travelled the wide world over. When you arrive someplace ask the GM about any important traditions, rituals, and so on, they'll tell you what you need to know.", prerequisiteType: "None", prerequisite: "" });
 
     new ClassMovePanel(topPanel, {source: "Kickstarter 2012", className: "The Barbarian", minLevel: 2, maxLevel: 10, name: "Usurper", move: "When you prove yourself superior to a person in power, take +1 forward with their followers, underlings, and hangers on.", prerequisiteType: "None", prerequisite: "" });
 
