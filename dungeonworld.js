@@ -125,6 +125,34 @@ var ModifierStat = Modifier.extend({
 
 });
 
+// -------------------- ModifierAddField adds the value of one field to its target --------------------
+
+var ModifierAddField = Modifier.extend({
+
+    init: function(fieldId, sourceFieldId) {
+        this.sourceField = Field.getField(sourceFieldId);
+        this._super(fieldId, true);
+    },
+
+    getSourceFields: function getSourceFields() {
+        return [ this.sourceField ];
+    },
+
+    isNumeric: function isNumeric(value) {
+        return !isNaN(parseFloat(value)) && isFinite(value);
+    },
+
+    apply: function apply(value) {
+        var sourceFieldValue = this.sourceField.getValue();
+        if (this.isNumeric(value) && this.isNumeric(sourceFieldValue)) {
+            return value + sourceFieldValue;
+        } else {
+            return '';
+        }
+    }
+
+});
+
 // -------------------- ModifierClass is enabled when the className field has the given value --------------------
 
 var ModifierClass = Modifier.extend({
@@ -661,10 +689,12 @@ $(document).ready(function () {
         new ModifierStat(modifier, stat)
     });
 
+    new Field("classIcon");
     new Field("diceIcon");
     new Field("baseHp");
-
-    new Field("classIcon");
+    new FieldInt("hpMaxValue");
+    new ModifierAddField("hpMaxValue", "baseHp");
+    new ModifierAddField("hpMaxValue", "constitution");
 
     new FieldDescriptionList("alignment", function (a, b) {
         var order = ['Lawful', 'Good', 'Neutral', 'Chaotic', 'Evil'];
