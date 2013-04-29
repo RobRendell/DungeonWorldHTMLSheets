@@ -1,7 +1,26 @@
 
-* Make class icon editor only the dimensions and path, rather than the entire SVG (anti-xss)
+TODO
 
-* Fix expanding tree refresh (ideally fix the single monolithic expandFn)
+* Class-specific starting gear display.
 
-* Edit existing race (e.g. Dwarf, add Ranger) then hit Done => cannot call method 'html' of undefined.
+* Implement Load/Save As/Save to URL.
 
+* Sourcebook list, tickable to include/exclude.
+
+* Do I want explicitly configured items through Source Data and a full inventory editor in-sheet?
+
+* Ticking moves in checklists.
+
+* Checklist fields should have a limit (= level for moves, 1 for race/alignment etc.), and when they have that many selections ticked they hide all non-ticked options.
+
+* Moves should be able to add modifiers to the character if they're selected.
+
+* Allow embedding custom stuff into the text of a move, which will be how choices like the Fighter's signature weapon and the Druid's land can be an editable and saved.
+
+* Make class icon "editor" only show the dimensions and path, rather than the entire SVG (anti-xss)
+
+* Compendium class support.
+
+* Find out what else is open content from Kickstarter 2012, and add it.
+
+* Add Grim Portents issue 1 races, compendium classes and classes as a source book (code change required: Bladeling race has advanced moves).
