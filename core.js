@@ -409,4 +409,95 @@ $(document).ready(function () {
 
     new RacePanel(topPanel, {source: "Dungeon World Core", name: "Human", subPanels: [ ['RaceClassPanel', {className: 'The Bard', move: "When you first enter a civilized settlement someone who respects the custom of hospitality to minstrels will take you in as their guest.", names: "Baldric, Leena, Dunwick, Willem, Edwyn, Florian, Seraphine, Quorra, Charlotte, Lily, Ramonde, Cassandra" } ], ['RaceClassPanel', {className: 'The Cleric', move: "Your faith is diverse. Choose one wizard spell. You can cast and be granted that spell as if it was a cleric spell.", names: "Wesley, Brinton, Jon, Sara, Hawthorn, Elise, Clarke, Lenore, Piotr, Dahlia, Carmine" } ], ['RaceClassPanel', {className: 'The Druid', move: "As your people learned to bind animals to field and farm, so too are you bound to them. You may always take the shape of any domesticated animal, in addition to your normal options.", names: "Elana, Obelis, Herran, Syla, Andanna, Siobhan, Aziz, Pelin, Sibel, Nils, Wei" } ], ['RaceClassPanel', {className: 'The Fighter', move: "Once per battle you may reroll a single damage roll (yours or someone else's).", names: "Hawke, Rudiger, Gregor, Brianne, Walton, Castor, Shanna, Ajax, Hob" } ], ['RaceClassPanel', {className: 'The Paladin', move: "When you pray for guidance, even for a moment, and ask, \"What here is evil?\" the GM will tell you, honestly.", names: "Thaddeus, Augustine, Lux, Cassius, Hadrian, Lucia, Octavia, Regulus, Valeria, Sanguinus, Titanius" } ], ['RaceClassPanel', {className: 'The Ranger', move: "When you make camp in a dungeon or city, you don't need to consume a ration.", names: "Jonah, Halek, Brandon, Emory, Shrike, Nora, Diana" } ], ['RaceClassPanel', {className: 'The Thief', move: "You are a professional. When you spout lore or discern realities about criminal activities, take +1.", names: "Sparrow, Shank, Jack, Marlow, Dodge, Rat, Pox, Humble, Farley" } ], ['RaceClassPanel', {className: 'The Wizard', move: "Choose one cleric spell. You can cast it as if it was a wizard spell.", names: "Avon, Morgan, Rath, Ysolde, Ovid, Vitus, Aldara, Xeno, Uri" } ] ] });
 
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Ragged Bow", tags: "near, 15 coin, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Fine Bow", tags: "near, far, 60 coin, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Hunter's Bow", tags: "near, far, 100 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Crossbow", tags: "near, +1 damage, reload, 35 coin, 3 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Ammunition", name: "Bundle of Arrows", tags: "3 ammo, 1 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Ammunition", name: "Elven Arrows", tags: "4 ammo, 20 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Shillelagh", tags: "close, 1 coin, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Club", tags: "close, 1 coin, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Staff", tags: "close, two-handed, 1 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Dagger", tags: "hand, 2 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Shiv", tags: "hand, 2 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Knife", tags: "hand, 2 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Throwing Dagger", tags: "thrown, near, 1 coin, 0 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Short Sword", tags: "close, 8 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Axe", tags: "close, 8 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Warhammer", tags: "close, 8 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Mace", tags: "close, 8 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Spear", tags: "reach, thrown, near, 5 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Long Sword", tags: "close, +1 damage, 15 coin, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Battle Axe", tags: "close, +1 damage, 15 coin, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Flail", tags: "close, +1 damage, 15 coin, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Halberd", tags: "reach, +1 damage, two-handed, 9 coin, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Rapier", tags: "close, precise, 25 coin, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Weapon", name: "Dueling Rapier", tags: "close, 1 piercing, precise, 50 coin, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Armor", name: "Leather", tags: "1 armor, worn, 10 coins, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Armor", name: "Chainmail", tags: "1 armor, worn, 10 coins, 1 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Armor", name: "Scale Mail", tags: "2 armor, worn, clumsy, 50 coins, 3 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Armor", name: "Plate", tags: "3 armor, worn, clumsy, 350 coins, 4 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Armor", name: "Shield", tags: "+1 armor, 15 coins, 2 weight" });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Adventuring Gear", tags: "5 uses, 20 coins, 1 weight", description: "Adventuring gear is a collection of useful mundane items such as chalk, poles, spikes, ropes, etc. When you rummage through your adventuring gear for some useful mundane item, you find what you need and mark off a use." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Bandages", tags: "3 uses, slow, 5 coins, 0 weight", description: "When you have a few minutes to bandage someone else's wounds, heal them of 4 damage and expend a use." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Poultices and Herbs", tags: "2 uses, slow, 10 coins, 1 weight", description: "When you carefully treat someone's wounds with poultices and herbs, heal them of 7 damage and expend a use." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Healing Potion", tags: "50 coins, 0 weight", description: "When you drink an entire healing potion, heal yourself of 10 damage or remove one debility, your choice." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Keg of Dwarven Stout", tags: "10 coins, 4 weight", description: "When you open a keg of dwarven stout and let everyone drink freely, take +1 to your Carouse roll. If you drink a whole keg yourself, you are very, very drunk." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Bag of Books", tags: "5 uses, 10 coins, 2 weight", description: "When your bag of books contains just the right book for the subject you're spouting lore on, consult the book, mark off a use, and take +1 to your roll." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Antitoxin", tags: "10 coins, 0 weight", description: "When you drink antitoxin, you're cured of one poison affecting you." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Dungeon Rations", tags: "ration, 5 uses, 3 coins, 1 weight", description: "Not tasty, but not bad either." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Personal Feast", tags: "ration, 1 use, 10 coins, 1 weight", description: "Ostentatious to say the least." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Dwarven Hardtack", tags: "requires Dwarf, ration, 7 uses, 3 coins, 1 weight", description: "Dwarves say it tastes like home. Everyone else says it tastes like home, if home is a hog farm, and on fire." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Elven Bread", tags: "ration, 7 uses, 10 coins, 1 weight", description: "Only the greatest of elf-friends are treated to this rare delicacy." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Gear", name: "Halfling Pipeleaf", tags: "6 uses, 5 coins, 0 weight", description: "When you share halfling pipeleaf with someone, expend two uses and take +1 forward to parley with them." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Poison", name: "Oil of Tagit", tags: "dangerous, applied, 15 coins, 0 weight", description: "The target falls into a light sleep." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Poison", name: "Bloodweed", tags: "dangerous, touch, 12 coins, 0 weight", description: "Until cured, whenever the afflicted rolls damage, they roll an additional d4 and subtract that result from their normal damage." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Poison", name: "Goldenroot", tags: "dangerous, applied, 20 coins, 0 weight", description: "The target treats the next creature they see as a trusted ally, until proved otherwise." });
+
+    new GearPanel(topPanel, {source: "Dungeon World Core", type: "Poison", name: "Serpent's Tears", tags: "dangerous, touch, 10 coins, 0 weight", description: "Anyone dealing damage against the target rolls twice and takes the better result." });
+
+
 });

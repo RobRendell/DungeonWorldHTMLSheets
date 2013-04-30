@@ -575,7 +575,7 @@ var TopPanel = CustomPanel.extend({
         $("<p/>").text('You can also create new custom features by clicking the buttons at the bottom of this page.').appendTo(this.panelDiv);
         this.appendTree();
         $('<hr/>').appendTo(this.panelDiv);
-        this.addSubPanelButtons([ CharacterClassPanel, RacePanel, ClassMovePanel ]);
+        this.addSubPanelButtons([ CharacterClassPanel, RacePanel, ClassMovePanel, GearPanel ]);
         $('<hr/>').appendTo(this.panelDiv);
         $('<button/>').text('Done').click($.proxy(this.hidePanel, this)).appendTo(this.panelDiv);
     }
@@ -886,3 +886,106 @@ var ClassMovePanel = CustomPanel.extend({
     }
 
 });
+
+// -------------------- GearPanel defines a type of gear --------------------
+
+function multiAutocomplete(input) {
+
+    var originalSource = input.autocomplete('option', 'source');
+    input.autocomplete('option', 'source', function (request, response) {
+        request.term = request.term.split(/,\s*/).pop();
+        if (originalSource instanceof Array) {
+            var matching = $.grep(originalSource, function (entry) {
+                return (entry.indexOf(request.term) >= 0);
+            });
+            response(matching);
+        } else if ($.isFunction(originalSource)) {
+            originalSource(request, response);
+        } else {
+            throw 'Unknown autocomplete source "' + originalSource + '" configured';
+        }
+    });
+    input.on('autocompletesearch', function(evt) {
+        // custom minLength
+        var searchTerm = this.value.split(/,\s*/).pop();
+        if (searchTerm.length < 2) {
+                return false;
+        }
+    });
+    input.on('autocompleteselect autocompletefocus', function (evt, ui) {
+        if (ui && ui.item && (evt.type == 'autocompleteselect' || evt.keyCode)) {
+            var terms = this.value.split(/,\s*/);
+            terms.pop();
+            terms.push(ui.item.value);
+            this.value = terms.join(', ');
+            return false;
+        }
+    });
+    input.keydown(function(evt) {
+        if (evt.keyCode === $.ui.keyCode.TAB && $(this).data("ui-autocomplete").menu.active) {
+            evt.preventDefault();
+        }
+    });
+
+}
+
+var GearPanel = CustomPanel.extend({
+
+    panelTitle: 'Gear',
+
+    className: 'GearPanel',
+
+    types: [ 'Weapon', 'Ammunition', 'Armor', 'Gear', 'Poison' ],
+
+    tagList: [ '# ammo', 'applied', '# armour', '+# armour', 'awkward', 'clumsy', 'close', '# coin', '+# damage', 'dangerous', 'far', 'forceful', 'hand', 'ignores armor', 'messy', 'near', '# piercing', 'precise', 'ration', 'reach', 'reload', 'requires', 'slow', 'stun', 'thrown', 'touch', 'two-handed', '# weight', 'worn', '# uses' ],
+
+    getShortName: function getShortName() {
+        return this.data.get('type') + ' "' + this.data.get('name') + '"';
+    },
+
+    matchNumbersInTags: function matchNumbersInTags(request, response) {
+        var numberMatch = request.term.match(/\s*(\+?)([0-9]*)\s*(.*)/);
+        var matching = $.map(this.tagList, function (entry) {
+            var searchTerm, result;
+            if (numberMatch[1]) {
+                searchTerm = '+# ' + numberMatch[3];
+                result = numberMatch[1] + numberMatch[2] + ' ' + entry.substring(3);
+            } else if (numberMatch[2]) {
+                searchTerm = '# ' + numberMatch[3];
+                result = numberMatch[2] + ' ' + entry.substring(2);
+            } else {
+                searchTerm = request.term;
+                result = entry;
+            }
+            if (entry.indexOf(searchTerm.toLowerCase()) >= 0) {
+                return result;
+            } else {
+                return undefined;
+            }
+        });
+        response(matching);
+    },
+
+    renderPanel: function renderPanel() {
+        this._super();
+        this.appendSourceRow();
+        this.appendFormTableRow('Type', 'type', 'text', this.types);
+        this.appendFormTableRow('Item name', 'name');
+        var tagsInput = this.appendFormTableRow('Tags', 'tags', 'text', $.proxy(this.matchNumbersInTags, this));
+        tagsInput.css('width', '40em');
+        multiAutocomplete(tagsInput);
+        this.appendFormTableRow('On-sheet note', 'note').css('width', '40em');
+        this.appendFormTableRow('Full description', 'description', 'textarea').attr('rows', 4).attr('cols', 60);
+        this.appendFooter();
+    },
+
+    compile: function compile(execute) {
+        if (!this.data.get("name"))
+            return "Gear must have a name!";
+        if (execute) {
+            this.removeCompiled();
+        }
+    }
+
+});
+

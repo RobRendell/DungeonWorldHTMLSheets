@@ -284,12 +284,13 @@ var Field = Class.extend({
         this.inputField(this.getInputValue());
     },
 
-    checkFinishKey: function checkFinishKey(eventObject) {
-        if (eventObject.which == KeyEvent.DOM_VK_ESCAPE) {
+    checkFinishKey: function checkFinishKey(evt) {
+        if (evt.which == $.ui.keyCode.ESCAPE) {
             this.renderField();
             this.editing = false;
-        } else if (eventObject.which == KeyEvent.DOM_VK_RETURN) {
+        } else if (evt.which == $.ui.keyCode.ENTER || evt.which == $.ui.keyCode.TAB) {
             this.inputField(this.getInputValue());
+            evt.preventDefault();
         } else {
             return undefined;
         }
