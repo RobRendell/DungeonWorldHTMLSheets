@@ -151,9 +151,53 @@ var CustomPanel = Class.extend({
     setData: function setData(data) {
         this.data = new Hash(data);
         if (this.data.contains('subPanels')) {
-            var subPanelsData = this.data.remove('subPanels');
-            this.buildSubPanelsFromData(subPanelsData);
+            var subPanelJSON = this.data.remove('subPanels');
+            this.buildSubPanelsFromJSON(subPanelJSON);
         }
+    },
+
+    toJSON: function toJSON() {
+        var result = "[ '";
+        result += this.className;
+        result += "', { ";
+        var first = true;
+        if (this.subPanels && this.subPanels.length > 0) {
+            this.data.set('subPanels', this.subPanels);
+        }
+        this.data.each(function (key, value) {
+            if (first) {
+                first = false;
+            } else {
+                result += ', ';
+            }
+            result += '"' + key + '": ';
+            if (key == 'subPanels') {
+                result += '[ ';
+                var firstSub = true;
+                value.each(function (key, subPanel) {
+                    if (firstSub) {
+                        firstSub = false;
+                    } else {
+                        result += ', ';
+                    }
+                    result += subPanel.toJSON();
+                });
+                result += ' ]';
+            } else if ($.type(value) == 'string') {
+                if (value.indexOf('"') < 0) {
+                    result += '"' + value + '"';
+                } else if (value.indexOf("'") < 0) {
+                    result += "'" + value + "'";
+                } else {
+                    result += "'" + value.replace(/'/g, "\\'") + "'";
+                }
+            } else {
+                result += value;
+            };
+        });
+        this.data.remove('subPanels');
+        result += ' } ]';
+        return result;
     },
 
     editSubPanel: function editSubPanel(evt, panel) {
@@ -185,6 +229,12 @@ var CustomPanel = Class.extend({
         var panel = evt.data;
         debugger;
         panel.compile(true);
+    },
+
+    showJSON: function showJSON(evt) {
+        evt.stopPropagation();
+        var panel = evt.data;
+        console.info(panel.toJSON());
     },
 
     appendSubPanelsTable: function appendSubPanelsTable(panelDiv, subPanels) {
@@ -220,16 +270,16 @@ var CustomPanel = Class.extend({
             }
             if (window.location.protocol == "file:") {
                 $('<button/>').text('Debug Code').click(panel, $.proxy(this.debugPanelCode, this)).appendTo($('<td/>').css('width', '1%').appendTo(row));
+                $('<button/>').text('Show JSON in console').click(panel, $.proxy(this.showJSON, this)).appendTo($('<td/>').css('width', '1%').appendTo(row));
             } else {
                 $('<td/>').css('width', '1%').appendTo(row);
+                $('<td/>').css('width', '1%').appendTo(row);
             }
-            $('<td/>').css('width', '95%').appendTo(row);
+            $('<td/>').css('width', '94%').appendTo(row);
         }, this));
     },
 
     addSubPanel: function addSubPanel(panelType, data) {
-        data = data || {};
-        data['source'] = this.getSource();
         var panel = new panelType(this, data, true);
         this.subPanels.set(panel.getId(), panel);
         return panel;
@@ -241,11 +291,13 @@ var CustomPanel = Class.extend({
         this.addSubPanel(panelType).showPanel();
     },
 
-    buildSubPanelsFromData: function buildSubPanelsFromData(data) {
+    buildSubPanelsFromJSON: function buildSubPanelsFromJSON(data) {
+        var result = [];
         $.each(data, $.proxy(function (index, panelData) {
             var panelType = CustomPanel.prototype.typeMap.get(panelData[0]);
-            this.addSubPanel(panelType, panelData[1]);
+            result.push(this.addSubPanel(panelType, panelData[1]));
         }, this));
+        return result;
     },
 
     addSubPanelButtons: function addSubPanelButtons(panelTypes) {
@@ -418,10 +470,12 @@ var CustomPanel = Class.extend({
     },
 
     addToSource: function addToSource(oldSource, oldTitle, oldShortName) {
-        if (oldSource && !this.removeFromSource(oldSource, oldTitle, oldShortName))
-            return;
-        var book = Sourcebook.getBook(this.getSource());
-        book.getData(this.panelTitle).set(this.getShortName(), this);
+        if (this.data.contains('source')) {
+            if (oldSource && !this.removeFromSource(oldSource, oldTitle, oldShortName))
+                return;
+            var book = Sourcebook.getBook(this.getSource());
+            book.getData(this.panelTitle).set(this.getShortName(), this);
+        }
     },
 
     removeFromSource: function removeFromSource(source, panelTitle, shortName) {
@@ -594,24 +648,50 @@ var CharacterClassPanel = CustomPanel.extend({
         return this.data.get('name');
     },
 
+    gearWithTags: function (request, response) {
+        var hash = CustomPanel.prototype.all.get('Gear');
+        var result = $.map(hash.keys().sort(), function (entryKey) {
+            var entry = hash.get(entryKey);
+            var result = entry.data.get('name');
+            if (entry.data.get('tags')) {
+                var tags = entry.data.get('tags');
+                tags = tags.replace(/(^|,\s*)[0-9]+ coin(s?)(\s*,\s*)?/, '$1');
+                result += ' (' + tags + ')';;
+            }
+            if (result.toLowerCase().indexOf(request.term.toLowerCase()) >= 0) {
+                return result;
+            } else {
+                return undefined;
+            }
+        });
+        response(result);
+    },
+
     renderPanel: function renderPanel() {
         this._super();
         this.appendFormTableRow('Class Name', 'name');
         this.appendSourceRow();
-        this.appendFormTableRow('Look suggestions 1', 'look1').attr('size', 50);
-        this.appendFormTableRow('Look suggestions 2', 'look2').attr('size', 50);
-        this.appendFormTableRow('Look suggestions 3', 'look3').attr('size', 50);
-        this.appendFormTableRow('Look suggestions 4', 'look4').attr('size', 50);
-        this.appendFormTableRow('Damage Die', 'damage', 'select', [ 'd4', 'd6', 'd8', 'd10' ] );
-        this.appendFormTableRow('Base HP', 'baseHp');
         var iconInput = this.appendFormTableRow('Class Icon', 'classIcon', 'textarea');
         var iconDisplay = $('<div/>').addClass('iconDisplay').html(this.data.get('classIcon'));
         iconInput.attr('rows', 10).attr('cols', 80).after(iconDisplay);
         iconInput.change(function (evt) {
             iconDisplay.html(iconInput.val());
         });
+        this.appendFormTableRow('Look');
+        this.appendFormTableRow('Look suggestions 1', 'look1').attr('size', 50);
+        this.appendFormTableRow('Look suggestions 2', 'look2').attr('size', 50);
+        this.appendFormTableRow('Look suggestions 3', 'look3').attr('size', 50);
+        this.appendFormTableRow('Look suggestions 4', 'look4').attr('size', 50);
+        this.appendFormTableRow('Combat');
+        this.appendFormTableRow('Damage Die', 'damage', 'select', [ 'd4', 'd6', 'd8', 'd10' ] );
+        this.appendFormTableRow('Base HP', 'baseHp');
+        this.appendFormTableRow('Gear');
+        this.appendFormTableRow('Load capacity', 'load').after($('<span/>').text(' + Str').addClass('roll'));
+        var initialGear = this.appendFormTableRow('Initial gear (separate multiple items with +)', 'gear', 'text', $.proxy(this.gearWithTags, this));
+        initialGear.css('width', '60em');
+        multiAutocomplete(initialGear, '+');
 
-        this.appendFooter([ ClassAlignmentPanel, ClassBondPanel ]);
+        this.appendFooter([ GearChoicePanel, ClassAlignmentPanel, ClassBondPanel ]);
     },
 
     compile: function compile(execute) {
@@ -631,6 +711,71 @@ var CharacterClassPanel = CustomPanel.extend({
             this.subPanels.each(function (key, subPanel) {
                 subPanel.compile(execute);
             });
+        }
+    }
+
+});
+
+// -------------------- GearChoicePanel defines a choice of gear for a character --------------------
+
+var GearChoicePanel = CustomPanel.extend({
+
+    panelTitle: 'Choice of Gear',
+
+    className: 'GearChoicePanel',
+
+    getShortName: function getShortName() {
+        return this.panelTitle + ' "' + this.data.get('instructions') + '"';
+    },
+
+    renderPanel: function renderPanel() {
+        this._super();
+        this.appendFormTableRow('Instructions (e.g. "Choose your defenses")', 'instructions');
+        this.appendFormTableRow('Number of selections', 'selections');
+        this.appendFooter([ GearOptionPanel ]);
+    },
+
+    compile: function compile(execute) {
+        if (!this.data.get("instructions"))
+            return "Gear choice must have instructions!";
+        if (!this.data.get("selections"))
+            return "Gear choice must nominate the number of selections!";
+        if (!this.subpanels || this.subpanels.size == 0)
+            return "Gear choice must have some options!";
+        if (execute) {
+            this.removeCompiled();
+            var name = this.data.get("name");
+        }
+    }
+
+});
+
+// -------------------- GearOptionPanel defines a single gear option that can be selected --------------------
+
+var GearOptionPanel = CustomPanel.extend({
+
+    panelTitle: 'Gear Option',
+
+    className: 'GearOptionPanel',
+
+    getShortName: function getShortName() {
+        return this.panelTitle + ' "' + this.data.get('gear') + '"';
+    },
+
+    renderPanel: function renderPanel() {
+        this._super();
+        var gear = this.appendFormTableRow('Gear (separate multiple items with +)', 'gear', 'text', $.proxy(this.parentPanel.parentPanel.gearWithTags, this));
+        gear.css('width', '60em');
+        multiAutocomplete(gear, '+');
+        this.appendFooter();
+    },
+
+    compile: function compile(execute) {
+        if (!this.data.get("gear"))
+            return "Gear option must specify the gear!";
+        if (execute) {
+            this.removeCompiled();
+            var name = this.data.get("name");
         }
     }
 
@@ -657,9 +802,6 @@ var ClassAlignmentPanel = CustomPanel.extend({
 
     getPanelTitle: function getPanelTitle() {
         return this.panelTitle + ' ' + this.parentPanel.form.find('input[name=name]').val();
-    },
-
-    addToSource: function addToSource(oldSource, oldTitle, oldShortName) {
     },
 
     compile: function compile(execute) {
@@ -696,9 +838,6 @@ var ClassBondPanel = CustomPanel.extend({
 
     getPanelTitle: function getPanelTitle() {
         return this.panelTitle + ' ' + this.parentPanel.form.find('input[name=name]').val();
-    },
-
-    addToSource: function addToSource(oldSource, oldTitle, oldShortName) {
     },
 
     compile: function compile(execute) {
@@ -770,9 +909,6 @@ var RaceClassPanel = CustomPanel.extend({
 
     getPanelTitle: function getPanelTitle() {
         return this.panelTitle + ' ' + this.parentPanel.form.find('input[name=name]').val();
-    },
-
-    addToSource: function addToSource(oldSource, oldTitle, oldShortName) {
     },
 
     compile: function compile(execute) {
@@ -889,46 +1025,6 @@ var ClassMovePanel = CustomPanel.extend({
 
 // -------------------- GearPanel defines a type of gear --------------------
 
-function multiAutocomplete(input) {
-
-    var originalSource = input.autocomplete('option', 'source');
-    input.autocomplete('option', 'source', function (request, response) {
-        request.term = request.term.split(/,\s*/).pop();
-        if (originalSource instanceof Array) {
-            var matching = $.grep(originalSource, function (entry) {
-                return (entry.indexOf(request.term) >= 0);
-            });
-            response(matching);
-        } else if ($.isFunction(originalSource)) {
-            originalSource(request, response);
-        } else {
-            throw 'Unknown autocomplete source "' + originalSource + '" configured';
-        }
-    });
-    input.on('autocompletesearch', function(evt) {
-        // custom minLength
-        var searchTerm = this.value.split(/,\s*/).pop();
-        if (searchTerm.length < 2) {
-                return false;
-        }
-    });
-    input.on('autocompleteselect autocompletefocus', function (evt, ui) {
-        if (ui && ui.item && (evt.type == 'autocompleteselect' || evt.keyCode)) {
-            var terms = this.value.split(/,\s*/);
-            terms.pop();
-            terms.push(ui.item.value);
-            this.value = terms.join(', ');
-            return false;
-        }
-    });
-    input.keydown(function(evt) {
-        if (evt.keyCode === $.ui.keyCode.TAB && $(this).data("ui-autocomplete").menu.active) {
-            evt.preventDefault();
-        }
-    });
-
-}
-
 var GearPanel = CustomPanel.extend({
 
     panelTitle: 'Gear',
@@ -937,7 +1033,7 @@ var GearPanel = CustomPanel.extend({
 
     types: [ 'Weapon', 'Ammunition', 'Armor', 'Gear', 'Poison' ],
 
-    tagList: [ '# ammo', 'applied', '# armour', '+# armour', 'awkward', 'clumsy', 'close', '# coin', '+# damage', 'dangerous', 'far', 'forceful', 'hand', 'ignores armor', 'messy', 'near', '# piercing', 'precise', 'ration', 'reach', 'reload', 'requires', 'slow', 'stun', 'thrown', 'touch', 'two-handed', '# weight', 'worn', '# uses' ],
+    tagList: [ '# ammo', 'applied', '# armour', '+# armour', 'awkward', 'clumsy', 'close', '1 coin', '# coins', '+# damage', 'dangerous', 'far', 'forceful', 'hand', 'ignores armor', 'messy', 'near', '# piercing', 'precise', 'ration', 'reach', 'reload', 'requires', 'slow', 'stun', 'thrown', 'touch', 'two-handed', '# weight', 'worn', '# uses' ],
 
     getShortName: function getShortName() {
         return this.data.get('type') + ' "' + this.data.get('name') + '"';
@@ -947,7 +1043,10 @@ var GearPanel = CustomPanel.extend({
         var numberMatch = request.term.match(/\s*(\+?)([0-9]*)\s*(.*)/);
         var matching = $.map(this.tagList, function (entry) {
             var searchTerm, result;
-            if (numberMatch[1]) {
+            if (entry.match(/[0-9]/)) {
+                searchTerm = request.term;
+                result = entry;
+            } else if (numberMatch[1]) {
                 searchTerm = '+# ' + numberMatch[3];
                 result = numberMatch[1] + numberMatch[2] + ' ' + entry.substring(3);
             } else if (numberMatch[2]) {
@@ -973,7 +1072,7 @@ var GearPanel = CustomPanel.extend({
         this.appendFormTableRow('Item name', 'name');
         var tagsInput = this.appendFormTableRow('Tags', 'tags', 'text', $.proxy(this.matchNumbersInTags, this));
         tagsInput.css('width', '40em');
-        multiAutocomplete(tagsInput);
+        multiAutocomplete(tagsInput, ',');
         this.appendFormTableRow('On-sheet note', 'note').css('width', '40em');
         this.appendFormTableRow('Full description', 'description', 'textarea').attr('rows', 4).attr('cols', 60);
         this.appendFooter();

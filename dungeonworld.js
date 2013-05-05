@@ -1,4 +1,50 @@
 
+function multiAutocomplete(input, separator) {
+
+    var originalSource = input.autocomplete('option', 'source');
+    var splitRegexString = separator + '\\s*(?![^(]*\\))';
+    if (separator == '+') {
+        splitRegexString = '\\s*\\' + splitRegexString;
+        separator = ' +';
+    }
+    var splitRegex = new RegExp(splitRegexString);
+    input.autocomplete('option', 'source', function (request, response) {
+        request.term = request.term.split(splitRegex).pop();
+        if (originalSource instanceof Array) {
+            var matching = $.grep(originalSource, function (entry) {
+                return (entry.toLowerCase().indexOf(request.term.toLowerCase()) >= 0);
+            });
+            response(matching);
+        } else if ($.isFunction(originalSource)) {
+            originalSource(request, response);
+        } else {
+            throw 'Unknown autocomplete source "' + originalSource + '" configured';
+        }
+    });
+    input.on('autocompletesearch', function(evt) {
+        // custom minLength
+        var searchTerm = this.value.split(splitRegex).pop();
+        if (searchTerm.length < 2) {
+                return false;
+        }
+    });
+    input.on('autocompleteselect autocompletefocus', function (evt, ui) {
+        if (ui && ui.item && (evt.type == 'autocompleteselect' || evt.keyCode)) {
+            var terms = this.value.split(splitRegex);
+            terms.pop();
+            terms.push(ui.item.value);
+            this.value = terms.join(separator + ' ');
+            return false;
+        }
+    });
+    input.keydown(function(evt) {
+        if (evt.keyCode === $.ui.keyCode.TAB && $(this).data("ui-autocomplete").menu.active) {
+            evt.preventDefault();
+        }
+    });
+
+}
+
 // ==================== Floating menu ====================
 
 var FloatingMenu = Class.extend({
@@ -734,9 +780,18 @@ $(document).ready(function () {
 
     menu.addMenuItem('<hr/>');
 
-    topPanel = new TopPanel();
+    var topPanel = new TopPanel();
     menu.addMenuItem("Edit Source Data...", function () {
         topPanel.showPanel();
+    });
+
+    $.extend({
+        addSourceData: function addSourceData(data) {
+            var panels = topPanel.buildSubPanelsFromJSON(data);
+            $.each(panels, function (index, panel) {
+                panel.compile(true);
+            });
+        }
     });
 
 });
