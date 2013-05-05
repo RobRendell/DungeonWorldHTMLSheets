@@ -2,11 +2,7 @@
 function multiAutocomplete(input, separator) {
 
     var originalSource = input.autocomplete('option', 'source');
-    var splitRegexString = separator + '\\s*(?![^(]*\\))';
-    if (separator == '+') {
-        splitRegexString = '\\s*\\' + splitRegexString;
-        separator = ' +';
-    }
+    var splitRegexString = '\\s*' + separator + '\\s*(?![^(]*\\))';
     var splitRegex = new RegExp(splitRegexString);
     input.autocomplete('option', 'source', function (request, response) {
         request.term = request.term.split(splitRegex).pop();

@@ -687,9 +687,9 @@ var CharacterClassPanel = CustomPanel.extend({
         this.appendFormTableRow('Base HP', 'baseHp');
         this.appendFormTableRow('Gear');
         this.appendFormTableRow('Load capacity', 'load').after($('<span/>').text(' + Str').addClass('roll'));
-        var initialGear = this.appendFormTableRow('Initial gear (separate multiple items with +)', 'gear', 'text', $.proxy(this.gearWithTags, this));
+        var initialGear = this.appendFormTableRow('Initial gear (separate multiple items with ;)', 'gear', 'text', $.proxy(this.gearWithTags, this));
         initialGear.css('width', '60em');
-        multiAutocomplete(initialGear, '+');
+        multiAutocomplete(initialGear, ';');
 
         this.appendFooter([ GearChoicePanel, ClassAlignmentPanel, ClassBondPanel ]);
     },
@@ -764,9 +764,9 @@ var GearOptionPanel = CustomPanel.extend({
 
     renderPanel: function renderPanel() {
         this._super();
-        var gear = this.appendFormTableRow('Gear (separate multiple items with +)', 'gear', 'text', $.proxy(this.parentPanel.parentPanel.gearWithTags, this));
+        var gear = this.appendFormTableRow('Gear (separate multiple items with ;)', 'gear', 'text', $.proxy(this.parentPanel.parentPanel.gearWithTags, this));
         gear.css('width', '60em');
-        multiAutocomplete(gear, '+');
+        multiAutocomplete(gear, ';');
         this.appendFooter();
     },
 
