@@ -1,4 +1,8 @@
 
+BUGS
+
+* Hitting enter while editing source data submits the page
+
 TODO
 
 * Class-specific starting gear display.

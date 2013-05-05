@@ -161,6 +161,7 @@ var CustomPanel = Class.extend({
         result += this.className;
         result += "', { ";
         var first = true;
+        this.data.remove('subPanels');
         if (this.subPanels && this.subPanels.length > 0) {
             this.data.set('subPanels', this.subPanels);
         }
@@ -323,7 +324,6 @@ var CustomPanel = Class.extend({
         }
         $('<h4/>').html(this.getPanelTitle()).appendTo(this.panelDiv);
         this.form = $('<form/>').appendTo(this.panelDiv);
-        this.formTable = $('<tbody/>').appendTo($('<table/>').addClass('customTable').appendTo(this.form));
     },
 
     getPanelTitle: function getPanelTitle() {
@@ -331,6 +331,11 @@ var CustomPanel = Class.extend({
     },
 
     appendFormTableRow: function appendFormTableRow(title, dataId, type, options) {
+        var focus = false;
+        if (!this.formTable) {
+            this.formTable = $('<tbody/>').appendTo($('<table/>').addClass('customTable').appendTo(this.form));
+            focus = true;
+        }
         var row = $('<tr/>').appendTo(this.formTable);
         var header = $('<th/>').html(title).appendTo(row);
         if (!type) {
@@ -353,13 +358,14 @@ var CustomPanel = Class.extend({
             input = $('<input/>').appendTo(cell).attr('name', dataId);
             input.attr('type', type);
             if (type == 'text' && options) {
-                var id = (this.getId() + "_" + dataId).replace(/ /g, '_').replace(/[^a-zA-Z_]/g, '');
-                cell.attr('id', id)
-                input.autocomplete({ source: options, appendTo: '#' + id });
+                input.autocomplete({ source: options, appendTo: cell });
             }
         }
         if (input && this.data.contains(dataId)) {
             input.val(this.data.get(dataId));
+        }
+        if (input && focus) {
+            input.focus();
         }
         return input;
     },
@@ -650,21 +656,30 @@ var CharacterClassPanel = CustomPanel.extend({
 
     gearWithTags: function (request, response) {
         var hash = CustomPanel.prototype.all.get('Gear');
-        var result = $.map(hash.keys().sort(), function (entryKey) {
-            var entry = hash.get(entryKey);
-            var result = entry.data.get('name');
-            if (entry.data.get('tags')) {
-                var tags = entry.data.get('tags');
-                tags = tags.replace(/(^|,\s*)[0-9]+ coin(s?)(\s*,\s*)?/, '$1');
-                result += ' (' + tags + ')';;
-            }
-            if (result.toLowerCase().indexOf(request.term.toLowerCase()) >= 0) {
-                return result;
-            } else {
-                return undefined;
-            }
-        });
-        response(result);
+        var searchTerm = request.term.toLowerCase();
+        var multiples = searchTerm.match(/([0-9]+\s*x\s*)(.*)/);
+        var prefix = '';
+        if (multiples) {
+            prefix = multiples[1];
+            searchTerm = multiples[2];
+        }
+        if (searchTerm.length >= 2) {
+            var result = $.map(hash.keys().sort(), function (entryKey) {
+                var entry = hash.get(entryKey);
+                var result = entry.data.get('name');
+                if (entry.data.get('tags')) {
+                    var tags = entry.data.get('tags');
+                    tags = tags.replace(/(^|,\s*)[0-9]+ coin(s?)(\s*,\s*)?/, '$1');
+                    result += ' (' + tags + ')';;
+                }
+                if (result.toLowerCase().indexOf(searchTerm) >= 0) {
+                    return prefix + result;
+                } else {
+                    return undefined;
+                }
+            });
+            response(result);
+        }
     },
 
     renderPanel: function renderPanel() {
@@ -687,7 +702,7 @@ var CharacterClassPanel = CustomPanel.extend({
         this.appendFormTableRow('Base HP', 'baseHp');
         this.appendFormTableRow('Gear');
         this.appendFormTableRow('Load capacity', 'load').after($('<span/>').text(' + Str').addClass('roll'));
-        var initialGear = this.appendFormTableRow('Initial gear (separate multiple items with ;)', 'gear', 'text', $.proxy(this.gearWithTags, this));
+        var initialGear = this.appendFormTableRow('Initial gear - separate multiple items with ;', 'gear', 'text', $.proxy(this.gearWithTags, this));
         initialGear.css('width', '60em');
         multiAutocomplete(initialGear, ';');
 
@@ -740,7 +755,7 @@ var GearChoicePanel = CustomPanel.extend({
             return "Gear choice must have instructions!";
         if (!this.data.get("selections"))
             return "Gear choice must nominate the number of selections!";
-        if (!this.subpanels || this.subpanels.size == 0)
+        if (!this.subPanels || this.subPanels.size == 0)
             return "Gear choice must have some options!";
         if (execute) {
             this.removeCompiled();
@@ -764,7 +779,7 @@ var GearOptionPanel = CustomPanel.extend({
 
     renderPanel: function renderPanel() {
         this._super();
-        var gear = this.appendFormTableRow('Gear (separate multiple items with ;)', 'gear', 'text', $.proxy(this.parentPanel.parentPanel.gearWithTags, this));
+        var gear = this.appendFormTableRow('Gear - separate multiple items with ;', 'gear', 'text', $.proxy(this.parentPanel.parentPanel.gearWithTags, this));
         gear.css('width', '60em');
         multiAutocomplete(gear, ';');
         this.appendFooter();
