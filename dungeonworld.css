@@ -300,7 +300,7 @@ dd + dt {
 }
 
 .checklist > li:before, .checklist > dt:before {
-    content: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' height='15' width='20'> <path d='M 3 3 L 15 3 L 15 15 L 3 15 Z' stroke='black' stroke-width='1' fill='black' /> <path d='M 0 1 L 12 1 L 12 13 L 0 13 Z' stroke='black' stroke-width='1' fill='white' /> </svg> ");
+    content: url("data:image/svg+xml;utf8, <svg xmlns='http://www.w3.org/2000/svg' height='15' width='20'> <path d='M 4 3 L 16 3 L 16 15 L 4 15 Z' stroke='black' stroke-width='1' fill='black' /> <path d='M 1 1 L 13 1 L 13 13 L 1 13 Z' stroke='black' stroke-width='1' fill='white' /> </svg> ");
     padding-left: 20px;
 }
 
@@ -359,7 +359,7 @@ ul, dl {
 .classBanner {
     color: white;
     font-variant: small-caps;
-    font-size: 40pt;
+    font-size: 36pt;
     background-repeat: no-repeat;
     background-size: 100% 100%;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><g><svg viewBox='0 0 100 50' preserveAspectRatio='none'><path d='M 0 50 L 100 50 L 100 1 Q 50 8 0 1 Z' stroke='black' stroke-width='1' fill='black' /></svg><svg viewBox='0 0 190 50' preserveAspectRatio='xMaxYMin'><text x='1' y='45' fill='white' font-family='Verdana' font-weight='bold' font-size='16'>XP</text><text x='1' y='22' fill='white' font-family='Verdana' font-weight='bold' font-size='16' style='font-variant: small-caps'>Level</text></svg></g></svg> ");

@@ -1,4 +1,6 @@
 
+// ==================== Some utility methods ====================
+
 function multiAutocomplete(input, separator) {
 
     var originalSource = input.autocomplete('option', 'source');
@@ -39,6 +41,10 @@ function multiAutocomplete(input, separator) {
         }
     });
 
+}
+
+function cmp (a, b) {
+    return ((a < b) ? -1 : (a > b) ? 1 : 0);
 }
 
 // ==================== Floating menu ====================
@@ -613,8 +619,13 @@ var FieldDescriptionList = Field.extend({
         this.element.empty();
         var keys = this.value.keys().sort(this.sortFn);
         $.each(keys, $.proxy(function (index, key) {
-            $('<dt/>').html(key).appendTo(this.element);
-            $('<dd/>').html(this.value.get(key)).appendTo(this.element);
+            var value = this.value.get(key);
+            if (value) {
+                $('<dt/>').html(key).appendTo(this.element);
+                $('<dd/>').html(value).appendTo(this.element);
+            } else {
+                $('<div/>').html(key).appendTo(this.element);
+            }
         }, this));
     }
 
@@ -683,7 +694,7 @@ var FieldMoveChoice = Field.extend({
         if (bOrder === '' || bOrder === undefined) {
             bOrder = 1000;
         }
-        return (aOrder < bOrder) ? -1 : (aOrder > bOrder) ? 1 : (aName < bName) ? -1 : (aName > bName) ? 1 : 0;
+        return cmp(aOrder, bOrder) || cmp(aName, bName);
     },
 
     renderField: function renderField() {
@@ -709,6 +720,45 @@ var FieldMoveChoice = Field.extend({
             this.element.append($('<b/>').html(this.textAfter));
         }
     }
+
+});
+
+// -------------------- FieldStartingGear is a field that displays starting gear --------------------
+
+var FieldStartingGear = Field.extend({
+
+    init: function init(name) {
+        this._super(name);
+        this.classField = Field.getField("className");
+        this.classField.addDependentField(this);
+    },
+
+    renderField: function renderField() {
+        this.element.empty();
+        var className = this.classField.getValue();
+        var classPanel = CustomPanel.prototype.all.get('Class').get(className);
+        var text = 'Your load is <span class="roll">' + classPanel.data.get('load') + '+Str</span>. You start with ' + classPanel.gearListToEnglish(classPanel.data.get('gear')) + '. ';
+        var choices = [];
+        classPanel.subPanels.each(function (key, panel) {
+            if (panel.className == 'GearChoicePanel') {
+                choices[parseInt(panel.data.get('order')) - 1] = panel;
+            }
+        });
+        for (var index = 0; index < choices.length; ++index) {
+            var panel = choices[index];
+            text += panel.data.get('instructions') + ':';
+            $('<div/>').html(text).appendTo(this.element);
+            text = '';
+            panel.subPanels.each($.proxy(function (key, subPanel) {
+                var subPanelText = classPanel.gearListToEnglish(subPanel.data.get('gear'));
+                $('<li/>').html(subPanelText).appendTo(this.element);
+            }, this));
+        }
+        while (this.element.height() < 200) {
+            this.element.append($('<br/>'));
+        }
+    }
+
 
 });
 
@@ -743,13 +793,7 @@ $(document).ready(function () {
         var order = ['Lawful', 'Good', 'Neutral', 'Chaotic', 'Evil'];
         var aIndex = order.indexOf(a);
         var bIndex = order.indexOf(b);
-        if (aIndex < bIndex) {
-            return -1;
-        } else if (aIndex > bIndex) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return cmp(aIndex, bIndex);
     });
     new FieldDescriptionList("race");
     new FieldUnorderedList("bonds");
@@ -757,6 +801,8 @@ $(document).ready(function () {
     new FieldChoice("className", function () {
         return CustomPanel.prototype.all.get('Class').keys().sort();
     });
+
+    new FieldStartingGear("startingGear");
 
     new FieldMoveChoice("startingMoveChoice", 1, undefined, "Choose one of these to start with:", "You also start with all of these:");
     new FieldMoveChoice("startingMoves", "Starting", undefined, undefined, undefined, "startingMoveLHS");

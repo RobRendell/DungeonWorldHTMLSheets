@@ -682,6 +682,15 @@ var CharacterClassPanel = CustomPanel.extend({
         }
     },
 
+    gearListToEnglish: function gearListToEnglish(gearList) {
+        var items = gearList.toLowerCase().split(/\s*;\s*/);
+        if (items.length > 1) {
+            var last = items.pop();
+            items[items.length - 1] += ' and ' + last;
+        }
+        return items.join(', ');
+    },
+
     renderPanel: function renderPanel() {
         this._super();
         this.appendFormTableRow('Class Name', 'name');
@@ -723,10 +732,10 @@ var CharacterClassPanel = CustomPanel.extend({
             this.compiled.push(new ModifierClass('diceIcon', name, diceIcon));
             this.compiled.push(new ModifierClass('baseHp', name, this.data.get('baseHp')));
             this.compiled.push(new ModifierClass('classIcon', name, this.data.get('classIcon')));
-            this.subPanels.each(function (key, subPanel) {
-                subPanel.compile(execute);
-            });
         }
+        this.subPanels.each(function (key, subPanel) {
+            subPanel.compile(execute);
+        });
     }
 
 });
@@ -739,13 +748,19 @@ var GearChoicePanel = CustomPanel.extend({
 
     className: 'GearChoicePanel',
 
+    orderSpaces: function orderSpaces() {
+        var order = parseInt(this.data.get('order')) || 0;
+        return Array(10 - order).join(' ');
+    },
+
     getShortName: function getShortName() {
-        return this.panelTitle + ' "' + this.data.get('instructions') + '"';
+        return this.orderSpaces() + this.panelTitle + ' "' + this.data.get('instructions') + '"';
     },
 
     renderPanel: function renderPanel() {
         this._super();
         this.appendFormTableRow('Instructions (e.g. "Choose your defenses")', 'instructions');
+        this.appendFormTableRow('Order on sheet', 'order', 'select', [1, 2, 3, 4, 5, 6, 7, 8, 9]);
         this.appendFormTableRow('Number of selections', 'selections');
         this.appendFooter([ GearOptionPanel ]);
     },
@@ -757,10 +772,9 @@ var GearChoicePanel = CustomPanel.extend({
             return "Gear choice must nominate the number of selections!";
         if (!this.subPanels || this.subPanels.size == 0)
             return "Gear choice must have some options!";
-        if (execute) {
-            this.removeCompiled();
-            var name = this.data.get("name");
-        }
+        this.subPanels.each(function (key, subPanel) {
+            subPanel.compile(execute);
+        });
     }
 
 });
@@ -788,10 +802,6 @@ var GearOptionPanel = CustomPanel.extend({
     compile: function compile(execute) {
         if (!this.data.get("gear"))
             return "Gear option must specify the gear!";
-        if (execute) {
-            this.removeCompiled();
-            var name = this.data.get("name");
-        }
     }
 
 });
