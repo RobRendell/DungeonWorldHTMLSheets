@@ -365,8 +365,7 @@ ul, dl {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><g><svg viewBox='0 0 100 50' preserveAspectRatio='none'><path d='M 0 50 L 100 50 L 100 1 Q 50 8 0 1 Z' stroke='black' stroke-width='1' fill='black' /></svg><svg viewBox='0 0 190 50' preserveAspectRatio='xMaxYMin'><text x='1' y='45' fill='white' font-family='Verdana' font-weight='bold' font-size='16'>XP</text><text x='1' y='22' fill='white' font-family='Verdana' font-weight='bold' font-size='16' style='font-variant: small-caps'>Level</text></svg></g></svg> ");
     position: relative;
     height: 60pt;
-    padding-left: 1.0em;
-    padding-left: 2em;
+    padding-left: 110px;
 }
 
 .classIcon {

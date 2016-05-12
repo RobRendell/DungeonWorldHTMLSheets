@@ -193,7 +193,7 @@ var ModifierAddField = Modifier.extend({
     apply: function apply(value) {
         var sourceFieldValue = this.sourceField.getValue();
         if (this.isNumeric(value) && this.isNumeric(sourceFieldValue)) {
-            return value + sourceFieldValue;
+            return parseInt(value) + parseInt(sourceFieldValue);
         } else {
             return '';
         }
