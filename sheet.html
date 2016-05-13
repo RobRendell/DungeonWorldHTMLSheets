@@ -3,9 +3,9 @@
 
     <title>Dungeon World Character</title>
 
-    <link rel="stylesheet" type="text/css" href="dungeonworld.css" />
-    <link rel="stylesheet" type="text/css" href="custom.css" />
-    <link rel="stylesheet" type="text/css" href="jquery-ui-1.10.2.custom.min.css" />
+    <link rel="stylesheet" type="text/css" href="dungeonworld.css"/>
+    <link rel="stylesheet" type="text/css" href="custom.css"/>
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.10.2.custom.min.css"/>
 
     <script type="text/javascript" src="inherit.js"></script>
     <script type="text/javascript" src="jquery-1.9.1.js"></script>
@@ -19,181 +19,246 @@
 </head>
 <body>
 
-    <div id="floatMenu" class="unprintable"></div>
+<div id="floatMenu" class="unprintable"></div>
 
-    <svg xmlns="http://www.w3.org/2000/svg" class="invisible">
-	<defs>
+<svg xmlns="http://www.w3.org/2000/svg" class="invisible">
+    <defs>
 
-	    <g id="statBoxSVG">
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 161 116" preserveAspectRatio="none">
-		    <path d="M 24 2 Q 17 3 8 2 L 4 7 Q 3 80 1 113 Q 3 112 18 113 Q 22 110 24 108 L 24 105 Q 22 107 14 106 Q 11 50 14 9 L 20 9 Q 23 6 24 2 Z" stroke="black" stroke-linejoin="round" stroke-width="1" fill="black" />
-		    <path d="M 142 1 Q 150 2 159 1 Q 155 60 158 106 L 154 113 Q 140 112 135 114 Q 135 112 140 106 L 146 106 Q 148 60 148 10 Q 140 9 136 10 Q 136 8 142 1 Z" stroke="black" stroke-linejoin="round" stroke-width="1" fill="black" />
-		</svg>
-	    </g>
+        <g id="statBoxSVG">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 161 116" preserveAspectRatio="none">
+                <path d="M 24 2 Q 17 3 8 2 L 4 7 Q 3 80 1 113 Q 3 112 18 113 Q 22 110 24 108 L 24 105 Q 22 107 14 106 Q 11 50 14 9 L 20 9 Q 23 6 24 2 Z"
+                      stroke="black" stroke-linejoin="round" stroke-width="1" fill="black"></path>
+                <path d="M 142 1 Q 150 2 159 1 Q 155 60 158 106 L 154 113 Q 140 112 135 114 Q 135 112 140 106 L 146 106 Q 148 60 148 10 Q 140 9 136 10 Q 136 8 142 1 Z"
+                      stroke="black" stroke-linejoin="round" stroke-width="1" fill="black"></path>
+            </svg>
+        </g>
 
-	    <g id="boxSVG">
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 28">
-		    <path d="M 0 8 L 20 8 L 20 28 L 0 28 Z" stroke="black" stroke-linejoin="round" stroke-width="1" fill="white" />
-		</svg>
-	    </g>
+        <g id="boxSVG">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 28">
+                <path d="M 0 8 L 20 8 L 20 28 L 0 28 Z" stroke="black" stroke-linejoin="round" stroke-width="1"
+                      fill="white"></path>
+            </svg>
+        </g>
 
-	    <g id="d4SVG">
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 80">
-		    <path d="m 30,70 l 11.28375,-26.3825 0,-0.91875 -24.36875,-26.305 13.085,53.60625 z" stroke="black" stroke-width="3" stroke-linejoin="round" fill="white" />
-		    <path d="m 16.6,16.3 l 13.085,53.60625 -37.95625,-15.88125 24.87125,-37.725 z" stroke="black" stroke-width="3" stroke-linejoin="round" fill="white" />
-		    <text x="3" y="50" fill="black" font-family="Verdana" font-weight="bold" font-size="12">D4</text>
-		</svg>
-	    </g>
+        <g id="d4SVG">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 80">
+                <path d="m 30,70 l 11.28375,-26.3825 0,-0.91875 -24.36875,-26.305 13.085,53.60625 z" stroke="black"
+                      stroke-width="3" stroke-linejoin="round" fill="white"></path>
+                <path d="m 16.6,16.3 l 13.085,53.60625 -37.95625,-15.88125 24.87125,-37.725 z" stroke="black"
+                      stroke-width="3" stroke-linejoin="round" fill="white"></path>
+                <text x="3" y="50" fill="black" font-family="Verdana" font-weight="bold" font-size="12">D4</text>
+            </svg>
+        </g>
 
-	    <g id="d6SVG">
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 80">
-		    <path d="m 2,30 0,24.58 24.20375,16.055 23.87625,-16.055 0,-24.37 -24.20375,-15.18875 -23.87625,14.97875 24.20375,15.18875 0.0275,-0.0175 23.84875,-14.96125" stroke="black" stroke-width="3" stroke-linejoin="round" fill="white" />
-		    <path d="m 26,45 v 25" stroke="black" stroke-width="3" stroke-linejoin="round" fill="white" />
-		    <text x="16" y="35" fill="black" font-family="Verdana" font-weight="bold" font-size="12">D6</text>
-		</svg>
-	    </g>
+        <g id="d6SVG">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 80">
+                <path d="m 2,30 0,24.58 24.20375,16.055 23.87625,-16.055 0,-24.37 -24.20375,-15.18875 -23.87625,14.97875 24.20375,15.18875 0.0275,-0.0175 23.84875,-14.96125"
+                      stroke="black" stroke-width="3" stroke-linejoin="round" fill="white"></path>
+                <path d="m 26,45 v 25" stroke="black" stroke-width="3" stroke-linejoin="round" fill="white"></path>
+                <text x="16" y="35" fill="black" font-family="Verdana" font-weight="bold" font-size="12">D6</text>
+            </svg>
+        </g>
 
-	    <g id="d8SVG">
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 80">
-		    <path d="m 2,50 l 2.7375,-12.735 20.18,-23.31875 20.18,23.31875 2.7375,12.735 -22.9175,26.05375 -22.9175,-26.05375 z" stroke="black" stroke-width="3" stroke-linejoin="round" fill="white" />
-		    <path d="m 2,50 h 45.835 l -22.9175,-36.05375 -22.9175,36.05375" stroke="black" stroke-width="3" stroke-linejoin="round" fill="none" />
-		    <text x="15" y="47" fill="black" font-family="Verdana" font-weight="bold" font-size="12">D8</text>
-		</svg>
-	    </g>
+        <g id="d8SVG">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 80">
+                <path d="m 2,50 l 2.7375,-12.735 20.18,-23.31875 20.18,23.31875 2.7375,12.735 -22.9175,26.05375 -22.9175,-26.05375 z"
+                      stroke="black" stroke-width="3" stroke-linejoin="round" fill="white"></path>
+                <path d="m 2,50 h 45.835 l -22.9175,-36.05375 -22.9175,36.05375" stroke="black" stroke-width="3"
+                      stroke-linejoin="round" fill="none"></path>
+                <text x="15" y="47" fill="black" font-family="Verdana" font-weight="bold" font-size="12">D8</text>
+            </svg>
+        </g>
 
-	    <g id="d10SVG">
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 80">
-		    <path d="m 20,20 l 26,25 0,8 -26,23 -26,-23 0,-8 z" stroke="black" stroke-width="3" stroke-linejoin="round" fill="white" />
-		    <path d="m 20,20 l -16,30 -10,3" stroke="black" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none" />
-		    <path d="m 20,20 l 16,30 10,3" stroke="black" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none" />
-		    <path d="m 4,50 l 16,8 16,-8" stroke="black" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none" />
-		    <path d="m 20,58 v 16" stroke="black" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="none" />
-		    <text x="9" y="50" fill="black" font-family="Verdana" font-weight="bold" font-size="10">D10</text>
-		</svg>
-	    </g>
+        <g id="d10SVG">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 80">
+                <path d="m 20,20 l 26,25 0,8 -26,23 -26,-23 0,-8 z" stroke="black" stroke-width="3"
+                      stroke-linejoin="round" fill="white"></path>
+                <path d="m 20,20 l -16,30 -10,3" stroke="black" stroke-width="3" stroke-linejoin="round"
+                      stroke-linecap="round" fill="none"></path>
+                <path d="m 20,20 l 16,30 10,3" stroke="black" stroke-width="3" stroke-linejoin="round"
+                      stroke-linecap="round" fill="none"></path>
+                <path d="m 4,50 l 16,8 16,-8" stroke="black" stroke-width="3" stroke-linejoin="round"
+                      stroke-linecap="round" fill="none"></path>
+                <path d="m 20,58 v 16" stroke="black" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"
+                      fill="none"></path>
+                <text x="9" y="50" fill="black" font-family="Verdana" font-weight="bold" font-size="10">D10</text>
+            </svg>
+        </g>
 
-	    <g id="shieldSVG">
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 107">
-		    <path d="M 1 1 L 66 1 L 66 90 Q 55 98 33 105 Q 12 98 1 90 Z" stroke="black" stroke-width="3" fill="white" />
-		</svg>
-	    </g>
+        <g id="shieldSVG">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 107">
+                <path d="M 1 1 L 66 1 L 66 90 Q 55 98 33 105 Q 12 98 1 90 Z" stroke="black" stroke-width="3"
+                      fill="white"></path>
+            </svg>
+        </g>
 
-	    <g id="heartSVG">
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 79 110">
-		    <path d="M 39 20 A 19 19 0 0 1 75 34 Q 59 80 39 105 Q 19 80 3 34 A 19 19 0 0 1 39 20 Z" stroke="black" stroke-width="3" stroke-linejoin="round" fill="white" />
-		    <path d="M 13 58 L 65 58" stroke="black" stroke-width="3" stroke-linejoin="round" fill="none" />
-		    <text x="18" y="56" fill="black" font-family="Verdana" font-size="9">CURRENT</text>
-		    <text x="28" y="66" fill="black" font-family="Verdana" font-size="9">MAX</text>
-		</svg>
-	    </g>
+        <g id="heartSVG">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 79 110">
+                <path d="M 39 20 A 19 19 0 0 1 75 34 Q 59 80 39 105 Q 19 80 3 34 A 19 19 0 0 1 39 20 Z" stroke="black"
+                      stroke-width="3" stroke-linejoin="round" fill="white"></path>
+                <path d="M 13 58 L 65 58" stroke="black" stroke-width="3" stroke-linejoin="round" fill="none"></path>
+                <text x="18" y="56" fill="black" font-family="Verdana" font-size="9">CURRENT</text>
+                <text x="28" y="66" fill="black" font-family="Verdana" font-size="9">MAX</text>
+            </svg>
+        </g>
 
-	</defs>
-    </svg>
+    </defs>
+</svg>
 
 
 <div class="page">
 
     <div class="floatColumns">
 
-	<div class="column left60">
-	    <div class="heading left">Name <span class="whiteBox field editable" id="name">&nbsp;</span></div>
+        <div class="column left60">
+            <div class="heading left">Name <span class="whiteBox field editable" id="name">&nbsp;</span></div>
             <div class="field" id="nameSuggestions"></div>
-	</div>
+        </div>
 
-	<div class="column right">
-	    <div class="heading right">Look</div>
-	    <div class="field editable" id="look"></div>
-	    <div class="field" id="lookSuggestions1"></div>
-	    <div class="field" id="lookSuggestions2"></div>
-	    <div class="field" id="lookSuggestions3"></div>
-	    <div class="field" id="lookSuggestions4"></div>
-	</div>
+        <div class="column right">
+            <div class="heading right">Look</div>
+            <div class="field editable" id="look"></div>
+            <div class="field" id="lookSuggestions1"></div>
+            <div class="field" id="lookSuggestions2"></div>
+            <div class="field" id="lookSuggestions3"></div>
+            <div class="field" id="lookSuggestions4"></div>
+        </div>
 
     </div>
 
-    <div class="inverse" id="initialStats">Assign these scores to your stats: 16 (+2), 15 (+1), 13 (+1), 12 (+0), 9 (+0), 8 (-1)</div>
-    <div class="inverse invisible" id="statRanges">Stat ranges: 6&ndash;8 (-1), 9&ndash;12 (+0), 13&ndash;15 (+1), 16&ndash;17 (+2), 18 (+3)</div>
+    <div class="inverse" id="initialStats">Assign these scores to your stats: 16 (+2), 15 (+1), 13 (+1), 12 (+0), 9
+        (+0), 8 (-1)
+    </div>
+    <div class="inverse invisible" id="statRanges">Stat ranges: 6&ndash;8 (-1), 9&ndash;12 (+0), 13&ndash;15 (+1), 16&ndash;17
+        (+2), 18 (+3)
+    </div>
 
     <div class="statRow">
 
-	<div class="statBox">
-	    <div class="statName">Strength</div>
-	    <div class="value field editable" id="strength">&nbsp;</div>
-	    <div class="condition inverse"><svg><use xlink:href="#boxSVG" /></svg> Weak (-1)</div>
-	    <div class="value field" id="str">&nbsp;</div>
-	    <div class="statAbbrev">Str</div>
-	    <svg><use xlink:href="#statBoxSVG" /></svg>
-	</div>
+        <div class="statBox">
+            <div class="statName">Strength</div>
+            <div class="value field editable" id="strength">&nbsp;</div>
+            <div class="condition inverse">
+                <svg>
+                    <use xlink:href="#boxSVG"></use>
+                </svg>
+                Weak (-1)
+            </div>
+            <div class="value field" id="str">&nbsp;</div>
+            <div class="statAbbrev">Str</div>
+            <svg>
+                <use xlink:href="#statBoxSVG"></use>
+            </svg>
+        </div>
 
-	<div class="statBox">
-	    <div class="statName">Dexterity</div>
-	    <div class="value field editable" id="dexterity">&nbsp;</div>
-	    <div class="condition inverse"><svg><use xlink:href="#boxSVG" /></svg> Shaky (-1)</div>
-	    <div class="value field" id="dex">&nbsp;</div>
-	    <div class="statAbbrev">Dex</div>
-	    <svg><use xlink:href="#statBoxSVG" /></svg>
-	</div>
+        <div class="statBox">
+            <div class="statName">Dexterity</div>
+            <div class="value field editable" id="dexterity">&nbsp;</div>
+            <div class="condition inverse">
+                <svg>
+                    <use xlink:href="#boxSVG"></use>
+                </svg>
+                Shaky (-1)
+            </div>
+            <div class="value field" id="dex">&nbsp;</div>
+            <div class="statAbbrev">Dex</div>
+            <svg>
+                <use xlink:href="#statBoxSVG"></use>
+            </svg>
+        </div>
 
-	<div class="statBox">
-	    <div class="statName">Constitution</div>
-	    <div class="value field editable" id="constitution">&nbsp;</div>
-	    <div class="condition inverse"><svg><use xlink:href="#boxSVG" /></svg> Sick (-1)</div>
-	    <div class="value field" id="con">&nbsp;</div>
-	    <div class="statAbbrev">Con</div>
-	    <svg><use xlink:href="#statBoxSVG" /></svg>
-	</div>
+        <div class="statBox">
+            <div class="statName">Constitution</div>
+            <div class="value field editable" id="constitution">&nbsp;</div>
+            <div class="condition inverse">
+                <svg>
+                    <use xlink:href="#boxSVG"></use>
+                </svg>
+                Sick (-1)
+            </div>
+            <div class="value field" id="con">&nbsp;</div>
+            <div class="statAbbrev">Con</div>
+            <svg>
+                <use xlink:href="#statBoxSVG"></use>
+            </svg>
+        </div>
 
-	<div class="statBox">
-	    <div class="statName">Intelligence</div>
-	    <div class="value field editable" id="intelligence">&nbsp;</div>
-	    <div class="condition inverse"><svg><use xlink:href="#boxSVG" /></svg> Stunned (-1)</div>
-	    <div class="value field" id="int">&nbsp;</div>
-	    <div class="statAbbrev">Int</div>
-	    <svg><use xlink:href="#statBoxSVG" /></svg>
-	</div>
+        <div class="statBox">
+            <div class="statName">Intelligence</div>
+            <div class="value field editable" id="intelligence">&nbsp;</div>
+            <div class="condition inverse">
+                <svg>
+                    <use xlink:href="#boxSVG"></use>
+                </svg>
+                Stunned (-1)
+            </div>
+            <div class="value field" id="int">&nbsp;</div>
+            <div class="statAbbrev">Int</div>
+            <svg>
+                <use xlink:href="#statBoxSVG"></use>
+            </svg>
+        </div>
 
-	<div class="statBox">
-	    <div class="statName">Wisdom</div>
-	    <div class="value field editable" id="wisdom">&nbsp;</div>
-	    <div class="condition inverse"><svg><use xlink:href="#boxSVG" /></svg> Confused (-1)</div>
-	    <div class="value field" id="wis">&nbsp;</div>
-	    <div class="statAbbrev">Wis</div>
-	    <svg><use xlink:href="#statBoxSVG" /></svg>
-	</div>
+        <div class="statBox">
+            <div class="statName">Wisdom</div>
+            <div class="value field editable" id="wisdom">&nbsp;</div>
+            <div class="condition inverse">
+                <svg>
+                    <use xlink:href="#boxSVG"></use>
+                </svg>
+                Confused (-1)
+            </div>
+            <div class="value field" id="wis">&nbsp;</div>
+            <div class="statAbbrev">Wis</div>
+            <svg>
+                <use xlink:href="#statBoxSVG"></use>
+            </svg>
+        </div>
 
-	<div class="statBox">
-	    <div class="statName">Charisma</div>
-	    <div class="value field editable" id="charisma">&nbsp;</div>
-	    <div class="condition inverse"><svg><use xlink:href="#boxSVG" /></svg> Scarred (-1)</div>
-	    <div class="value field" id="cha">&nbsp;</div>
-	    <div class="statAbbrev">Cha</div>
-	    <svg><use xlink:href="#statBoxSVG" /></svg>
-	</div>
+        <div class="statBox">
+            <div class="statName">Charisma</div>
+            <div class="value field editable" id="charisma">&nbsp;</div>
+            <div class="condition inverse">
+                <svg>
+                    <use xlink:href="#boxSVG"></use>
+                </svg>
+                Scarred (-1)
+            </div>
+            <div class="value field" id="cha">&nbsp;</div>
+            <div class="statAbbrev">Cha</div>
+            <svg>
+                <use xlink:href="#statBoxSVG"></use>
+            </svg>
+        </div>
 
     </div>
 
     <div class="combatRow">
 
-	<div class="damageBox heading left">
-	    <span>Damage</span>
-	    <span class="diceIcon field" id="diceIcon"></span>
-	</div>
+        <div class="damageBox heading left">
+            <span>Damage</span>
+            <span class="diceIcon field" id="diceIcon"></span>
+        </div>
 
-	<div class="armourBox heading mid">
-	    <span>Armour</span>
-	    <div class="armourIcon">
-	    	<svg><use xlink:href="#shieldSVG" /></svg>
-		<div class="armourValue" id="armourValue">&nbsp;</div>
-	    </div>
-	</div>
+        <div class="armourBox heading mid">
+            <span>Armour</span>
+            <div class="armourIcon">
+                <svg>
+                    <use xlink:href="#shieldSVG"></use>
+                </svg>
+                <div class="armourValue" id="armourValue">&nbsp;</div>
+            </div>
+        </div>
 
-	<div class="hpBox heading right">
-	    <span>HP</span>
-	    <span class="hpNote">Your max HP is<br/><span class="field" id="baseHp"></span>+Constitution</span>
-	</div>
+        <div class="hpBox heading right">
+            <span>HP</span>
+            <span class="hpNote">Your max HP is<br/><span class="field" id="baseHp"></span>+Constitution</span>
+        </div>
 
 	<span class="heartIcon">
-	    <svg><use xlink:href="#heartSVG" /></svg>
+	    <svg>
+            <use xlink:href="#heartSVG"></use>
+        </svg>
 	    <div class="hpMaxValue" id="hpMaxValue">&nbsp;</div>
 	</span>
 
@@ -201,55 +266,55 @@
 
     <div class="floatColumns">
 
-	<div class="column left40">
+        <div class="column left40">
 
-	    <div class="section">
-		<div class="heading left">Alignment</div>
-		<dl class="checklist field" id="alignment">
-		</dl>
-	    </div>
+            <div class="section">
+                <div class="heading left">Alignment</div>
+                <dl class="checklist field" id="alignment">
+                </dl>
+            </div>
 
-	    <div class="section">
-		<div class="heading left">Race</div>
-		<dl class="checklist field" id="race">
-		</dl>
-	    </div>
+            <div class="section">
+                <div class="heading left">Race</div>
+                <dl class="checklist field" id="race">
+                </dl>
+            </div>
 
-	    <div class="section">
-		<div class="heading left">Bonds</div>
+            <div class="section">
+                <div class="heading left">Bonds</div>
 
-		<div id="initialBondsInfo">Fill in the name of one of your companions in at least one:</div>
-		<ul class="bonds field" id="bonds">
-		</ul>
-	    </div>
+                <div id="initialBondsInfo">Fill in the name of one of your companions in at least one:</div>
+                <ul class="bonds field" id="bonds">
+                </ul>
+            </div>
 
-	    <div class="section" id="startingMoveLHS">
-	    </div>
+            <div class="section" id="startingMoveLHS">
+            </div>
 
-	</div>
+        </div>
 
-	<div class="column right">
+        <div class="column right">
 
-	    <div class="section">
-		<div class="heading right">Starting Moves</div>
+            <div class="section">
+                <div class="heading right">Starting Moves</div>
 
-		<dl class="checklist" id="startingMoveChoice">
-		</dl>
+                <dl class="checklist" id="startingMoveChoice">
+                </dl>
 
-		<dl class="moves" id="startingMoves">
-		</dl>
+                <dl class="moves" id="startingMoves">
+                </dl>
 
-	    </div>
+            </div>
 
-	</div>
+        </div>
 
     </div>
 
     <div class="classBanner">
-	<span class="field editable" id="className">Choose class</span>
-	<div class="classIcon field" id="classIcon"></div>
-	<div class="whiteBox level" id="level">&nbsp;</div>
-	<div class="whiteBox xp" id="xp">&nbsp;</div>
+        <span class="field editable" id="className">Choose class</span>
+        <div class="classIcon field" id="classIcon"></div>
+        <div class="whiteBox level" id="level">&nbsp;</div>
+        <div class="whiteBox xp" id="xp">&nbsp;</div>
     </div>
 
 </div>
@@ -257,41 +322,41 @@
 <div class="page">
 
     <div class="section">
-	<div class="heading">Gear</div>
-	<div class="twoColumn">
+        <div class="heading">Gear</div>
+        <div class="twoColumn">
             <ul class="checklist" id="startingGear">
             </ul>
-	</div>
+        </div>
     </div>
 
     <div class="section">
 
-	<div class="heading">Advanced Moves</div>
+        <div class="heading">Advanced Moves</div>
 
-	<div class="twoColumn" id="advancedMovesTop">
+        <div class="twoColumn" id="advancedMovesTop">
 
-	    <div class="section">
+            <div class="section">
 
-		<dl class="checklist" id="advancedMoves2nd">
-		</dl>
+                <dl class="checklist" id="advancedMoves2nd">
+                </dl>
 
-		<b>When you gain a level from 2&ndash;5, choose from these moves.</b>
+                <b>When you gain a level from 2&ndash;5, choose from these moves.</b>
 
-		<dl class="checklist" id="advancedMovesLower">
-		</dl>
+                <dl class="checklist" id="advancedMovesLower">
+                </dl>
 
-	    </div>
+            </div>
 
-	    <div class="section">
+            <div class="section">
 
-		<b>When you gain a level from 6&ndash;10, choose from these moves or the level 2&ndash;5 moves.</b>
+                <b>When you gain a level from 6&ndash;10, choose from these moves or the level 2&ndash;5 moves.</b>
 
-		<dl class="checklist" id="advancedMovesHigher">
-		</dl>
+                <dl class="checklist" id="advancedMovesHigher">
+                </dl>
 
-	    </div>
+            </div>
 
-	</div>
+        </div>
 
     </div>
 
