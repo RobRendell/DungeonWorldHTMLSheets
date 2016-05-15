@@ -98,6 +98,11 @@ var ExpandingTree = Class.extend({
         if (this.expanded) {
             if (this.controlFn) {
                 var names = this.controlFn(this, true);
+                $.each(names, $.proxy(function (index, name) {
+                    if (!this.children.contains(name)) {
+                        new ExpandingTree(this, name);
+                    }
+                }, this));
                 // TODO what if names change?
             }
             this.children.each(function (key, value) {
@@ -156,49 +161,23 @@ var CustomPanel = Class.extend({
         }
     },
 
-    toJSON: function toJSON() {
-        var result = "[ '";
-        result += this.className;
-        result += "', { ";
-        var first = true;
-        this.data.remove('subPanels');
-        if (this.subPanels && this.subPanels.length > 0) {
-            this.data.set('subPanels', this.subPanels);
-        }
+    getSaveData: function getSaveData(includeNonCustom) {
+        var result = { };
         this.data.each(function (key, value) {
-            if (first) {
-                first = false;
-            } else {
-                result += ', ';
-            }
-            result += '"' + key + '": ';
-            if (key == 'subPanels') {
-                result += '[ ';
-                var firstSub = true;
-                value.each(function (key, subPanel) {
-                    if (firstSub) {
-                        firstSub = false;
-                    } else {
-                        result += ', ';
-                    }
-                    result += subPanel.toJSON();
-                });
-                result += ' ]';
-            } else if ($.type(value) == 'string') {
-                if (value.indexOf('"') < 0) {
-                    result += '"' + value + '"';
-                } else if (value.indexOf("'") < 0) {
-                    result += "'" + value + "'";
-                } else {
-                    result += "'" + value.replace(/'/g, "\\'") + "'";
-                }
-            } else {
-                result += value;
-            };
+            result[key] = value;
         });
-        this.data.remove('subPanels');
-        result += ' } ]';
-        return result;
+        var subPanels = [];
+        if (this.subPanels && this.subPanels.length > 0) {
+            this.subPanels.each(function (id, panel) {
+                if (includeNonCustom || panel.custom) {
+                    subPanels.push(panel.getSaveData(includeNonCustom));
+                }
+            });
+            if (subPanels.length > 0) {
+                result['subPanels'] = subPanels;
+            }
+        }
+        return [ this.className, result ];
     },
 
     editSubPanel: function editSubPanel(evt, panel) {
@@ -235,7 +214,7 @@ var CustomPanel = Class.extend({
     showJSON: function showJSON(evt) {
         evt.stopPropagation();
         var panel = evt.data;
-        console.info(panel.toJSON());
+        console.info(JSON.stringify(panel.getSaveData(true)));
     },
 
     appendSubPanelsTable: function appendSubPanelsTable(panelDiv, subPanels) {
@@ -477,8 +456,9 @@ var CustomPanel = Class.extend({
 
     addToSource: function addToSource(oldSource, oldTitle, oldShortName) {
         if (this.data.contains('source')) {
-            if (oldSource && !this.removeFromSource(oldSource, oldTitle, oldShortName))
-                return;
+            if (oldSource) {
+                this.removeFromSource(oldSource, oldTitle, oldShortName);
+            }
             var book = Sourcebook.getBook(this.getSource());
             book.getData(this.panelTitle).set(this.getShortName(), this);
         }

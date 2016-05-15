@@ -43,7 +43,7 @@ function multiAutocomplete(input, separator) {
 
 }
 
-function cmp (a, b) {
+function cmp(a, b) {
     return ((a < b) ? -1 : (a > b) ? 1 : 0);
 }
 
@@ -75,6 +75,7 @@ var FloatingMenu = Class.extend({
             item.html(text);
         }
         this.element.append(item);
+        return item;
     }
 
 });
@@ -433,6 +434,18 @@ var Field = Class.extend({
 
 Field.getField = function (name) {
     return Field.prototype.all.get(name);
+}
+
+Field.getAll = function (selector) {
+    var result = [];
+    $(selector).each(function(index, element) {
+        var id = $(element).attr("id");
+        var field = Field.getField(id);
+        if (field) {
+            result.push(field);
+        }
+    });
+    return result;
 }
 
 Field.callAll = function (selector, callback) {
@@ -810,19 +823,39 @@ $(document).ready(function () {
     new FieldMoveChoice("advancedMovesLower", 2, 10);
     new FieldMoveChoice("advancedMovesHigher", 6, 10);
 
-    $(".editable").click(Field.clickEditable);
+    $(document).on('click', '.editable', Field.clickEditable);
+
+    var topPanel = new TopPanel();
 
     var menu = new FloatingMenu('floatMenu');
     menu.addMenuItem("New character...", function () {
+        // TODO Warn if unsaved data present
         Field.callAll(".field", Field.prototype.reset);
+        // TODO should also reset custom data?
     });
     menu.addMenuItem("Load...");
-    menu.addMenuItem("Save As...");
-    menu.addMenuItem("Save to URL");
+    menu.addMenuItem("Save As...", function (evt) {
+        var fields = {};
+        $.each(Field.getAll('.field.editable'), function (index, field) {
+            fields[field.name] = field.getValue();
+        });
+        var name = Field.getField('name').getValue() || 'character';
+        var saveData = { fields: fields, sourceData: topPanel.getSaveData() };
+        var blob = new Blob([ JSON.stringify(saveData) ], { type: 'text/plain' });
+        var url = window.URL.createObjectURL(blob);
+        var downloadLink = $('<a/>').text('Download ready').attr({ 'href': url, 'download': name + '.txt' });
+        $('.downloadLinkDiv').append(downloadLink);
+        downloadLink.click(function () {
+            downloadLink.remove();
+            window.setTimeout(function () {
+                window.URL.revokeObjectURL(url);
+            }, 1);
+        });
+    }).append($('<div/>').addClass('downloadLinkDiv'));
+//    menu.addMenuItem("Save to URL");
 
     menu.addMenuItem('<hr/>');
 
-    var topPanel = new TopPanel();
     menu.addMenuItem("Edit Source Data...", function () {
         topPanel.showPanel();
     });
