@@ -7,7 +7,7 @@ TODO
 
 * Class-specific starting gear display.
 
-* Implement Load/Save As/Save to URL.
+* Compendium class support.
 
 * Sourcebook list, tickable to include/exclude.
 
@@ -15,15 +15,13 @@ TODO
 
 * Ticking moves in checklists.
 
-* Checklist fields should have a limit (= level for moves, 1 for race/alignment etc.), and when they have that many selections ticked they hide all non-ticked options.
+* Checklist fields should have a limit (= level for moves, 1 for race/alignment etc.), and when they have that many selections ticked they hide all non-ticked options (or alternatively end user chooses whether to hide unticked options per-field)
 
 * Moves should be able to add modifiers to the character if they're selected.
 
 * Allow embedding custom stuff into the text of a move, which will be how choices like the Fighter's signature weapon and the Druid's land can be an editable and saved.
 
 * Make class icon "editor" only show the dimensions and path, rather than the entire SVG (anti-xss)
-
-* Compendium class support.
 
 * Find out what else is open content from Kickstarter 2012, and add it.
 

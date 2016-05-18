@@ -466,6 +466,15 @@ Field.clickEditable = function () {
     }
 }
 
+Field.loadFields = function (data) {
+    $.each(Object.keys(data), function (index, name) {
+        var field = Field.getField(name);
+        if (field && data[name] != field.getDefaultValue()) {
+            field.updateValue(data[name]);
+        }
+    });
+}
+
 // -------------------- FieldInt holds an integer value --------------------
 
 var FieldInt = Field.extend({
@@ -544,7 +553,10 @@ var FieldRange = FieldChoice.extend({
     },
 
     updateValue: function updateValue(value) {
-        this._super(parseInt(value));
+        value = parseInt(value);
+        if (this.options.indexOf(value) >= 0) {
+            this._super(value);
+        }
     }
 
 });
@@ -833,14 +845,29 @@ $(document).ready(function () {
         Field.callAll(".field", Field.prototype.reset);
         // TODO should also reset custom data?
     });
-    menu.addMenuItem("Load...");
-    menu.addMenuItem("Save As...", function (evt) {
+    menu.addMenuItem("Load...", function () {
+        // TODO Warn if unsaved data present
+        var fileInput = $('<input type="file" />');
+        fileInput.click();
+        fileInput.change(function () {
+            var file = fileInput[0].files[0];
+            var reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = function (evt) {
+                var saveData = JSON.parse(reader.result);
+                Field.loadFields(saveData.fields);
+                topPanel.setData(saveData.sourceData, true)
+            };
+        });
+    });
+    menu.addMenuItem("Save As...", function () {
         var fields = {};
         $.each(Field.getAll('.field.editable'), function (index, field) {
             fields[field.name] = field.getValue();
         });
         var name = Field.getField('name').getValue() || 'character';
-        var saveData = { fields: fields, sourceData: topPanel.getSaveData() };
+        var topPanelData = topPanel.getSaveData();
+        var saveData = { fields: fields, sourceData: topPanelData[1] };
         var blob = new Blob([ JSON.stringify(saveData) ], { type: 'text/plain' });
         var url = window.URL.createObjectURL(blob);
         var downloadLink = $('<a/>').text('Download ready').attr({ 'href': url, 'download': name + '.txt' });
