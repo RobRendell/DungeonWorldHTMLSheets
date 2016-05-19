@@ -1,7 +1,9 @@
 
 BUGS
 
-* Hitting enter while editing source data submits the page
+* Hitting enter while editing source data submits the page (can't reproduce?)
+
+* "New character" menu item doesn't clear starting moves
 
 TODO
 

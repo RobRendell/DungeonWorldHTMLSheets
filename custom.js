@@ -839,7 +839,7 @@ var ClassAlignmentPanel = CustomPanel.extend({
         if (!this.data.get("alignment"))
             return "Alignment must have a name!";
         if (!this.data.get("move"))
-            return "Alighment Move for Class must have a move!";
+            return "Alignment Move for Class must have a move!";
         if (execute) {
             this.removeCompiled();
             var className = this.parentPanel.data.get('name');

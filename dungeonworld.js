@@ -261,7 +261,6 @@ var ModifierClassHashSet = ModifierClass.extend({
         value.set(this.key, this.value);
         return value;
     }
-
 });
 
 // ==================== A Field is a (possibly editable) value displayed on the sheet ====================
@@ -302,19 +301,25 @@ var Field = Class.extend({
         }
     },
 
-    startEditing: function startEditing() {
+    getSaveValue: function getSaveValue() {
+        return this.getValue();
+    },
+
+    startEditing: function startEditing(target) {
         if (this.editing) {
             return;
         }
         if (!this.input) {
-            this.input = this.renderEditing();
+            this.input = this.renderEditing(target);
         }
-        this.resetInput();
-        this.element.html(this.input);
-        this.editing = true;
-        this.input.focus();
-        this.input.blur($.proxy(this.blurEditing, this));
-        this.input.keydown($.proxy(this.checkFinishKey, this));
+        if (this.input) {
+            this.resetInput();
+            this.element.html(this.input);
+            this.editing = true;
+            this.input.focus();
+            this.input.blur($.proxy(this.blurEditing, this));
+            this.input.keydown($.proxy(this.checkFinishKey, this));
+        }
     },
 
     renderEditing: function renderEditing() {
@@ -438,39 +443,57 @@ Field.getField = function (name) {
 
 Field.getAll = function (selector) {
     var result = [];
+    var ids = {};
     $(selector).each(function(index, element) {
         var id = $(element).attr("id");
+        var parent = $(element).parent();
+        while (!id && parent) {
+            id = parent.attr('id');
+            parent = parent.parent();
+        }
         var field = Field.getField(id);
-        if (field) {
+        if (field && !ids[id]) {
             result.push(field);
+            ids[id] = true;
         }
     });
     return result;
 }
 
 Field.callAll = function (selector, callback) {
-    $(selector).each(function(index, element) {
-        var id = $(element).attr("id");
-        var field = Field.getField(id);
-        if (field) {
-            callback.call(field);
-        }
+    var fields = Field.getAll(selector);
+    $.each(fields, function(index, field) {
+        callback.call(field);
     });
 }
 
-Field.clickEditable = function () {
+Field.clickEditable = function (evt) {
     var id = $(this).attr("id");
+    var target = $(evt.target);
+    var parent = target.parent();
+    while (!id && parent) {
+        id = parent.attr('id');
+        parent = parent.parent();
+    }
     var field = Field.getField(id);
     if (field) {
-        field.startEditing();
+        field.startEditing(target);
     }
 }
 
-Field.loadFields = function (data) {
-    $.each(Object.keys(data), function (index, name) {
+Field.loadFields = function (data, first) {
+    $.each(first, function (index, name) {
         var field = Field.getField(name);
         if (field && data[name] != field.getDefaultValue()) {
             field.updateValue(data[name]);
+        }
+    });
+    $.each(Object.keys(data), function (index, name) {
+        if (first.indexOf(name) < 0) {
+            var field = Field.getField(name);
+            if (field && data[name] != field.getDefaultValue()) {
+                field.updateValue(data[name]);
+            }
         }
     });
 }
@@ -631,6 +654,8 @@ var FieldSuggestion = FieldHideShow.extend({
 
 var FieldDescriptionList = Field.extend({
 
+    setKey: '_set',
+
     init: function init(name, sortFn) {
         this._super(name);
         this.sortFn = sortFn;
@@ -643,15 +668,36 @@ var FieldDescriptionList = Field.extend({
     renderField: function renderField() {
         this.element.empty();
         var keys = this.value.keys().sort(this.sortFn);
+        var set = this.value.get(this.setKey);
         $.each(keys, $.proxy(function (index, key) {
-            var value = this.value.get(key);
-            if (value) {
-                $('<dt/>').html(key).appendTo(this.element);
+            if (key != this.setKey) {
+                var value = this.value.get(key);
+                var dt = $('<dt/>').html(key).addClass('editable');
+                if (key == set) {
+                    dt.addClass('ticked');
+                }
+                this.element.append(dt);
                 $('<dd/>').html(value).appendTo(this.element);
-            } else {
-                $('<div/>').html(key).appendTo(this.element);
             }
         }, this));
+    },
+
+    renderEditing: function renderEditing(target) {
+        this.updateValue(target.text());
+        return null;
+    },
+
+    updateValue: function updateValue(value) {
+        if (value instanceof Hash) {
+            this._super(value);
+        } else {
+            this.value.set(this.setKey, value);
+            this.renderField();
+        }
+    },
+
+    getSaveValue: function getSaveValue() {
+        return this.value.get(this.setKey);
     }
 
 });
@@ -783,8 +829,6 @@ var FieldStartingGear = Field.extend({
             this.element.append($('<br/>'));
         }
     }
-
-
 });
 
 // ==================== Initialise everything ====================
@@ -855,15 +899,15 @@ $(document).ready(function () {
             reader.readAsText(file);
             reader.onload = function (evt) {
                 var saveData = JSON.parse(reader.result);
-                Field.loadFields(saveData.fields);
+                Field.loadFields(saveData.fields, [ 'className' ]);
                 topPanel.setData(saveData.sourceData, true)
             };
         });
     });
     menu.addMenuItem("Save As...", function () {
         var fields = {};
-        $.each(Field.getAll('.field.editable'), function (index, field) {
-            fields[field.name] = field.getValue();
+        $.each(Field.getAll('.editable'), function (index, field) {
+            fields[field.name] = field.getSaveValue();
         });
         var name = Field.getField('name').getValue() || 'character';
         var topPanelData = topPanel.getSaveData();
