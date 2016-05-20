@@ -948,7 +948,6 @@ var FieldOngoingGear = Field.extend({
         this.element.empty();
         if (this.value.length == 0) {
             $('#loadLabel').hide();
-            Field.getField('startingGear').renderField();
             return;
         }
         var total = 0;
@@ -1036,6 +1035,10 @@ $(document).ready(function () {
     new FieldInt("hpMaxValue");
     new ModifierAddField("hpMaxValue", "baseHp");
     new ModifierAddField("hpMaxValue", "constitution");
+    new FieldInt("armourValue");
+
+    new FieldInt("level");
+    new FieldInt("xp");
 
     new FieldDescriptionList("alignment", function (a, b) {
         var order = ['Lawful', 'Good', 'Neutral', 'Chaotic', 'Evil'];
