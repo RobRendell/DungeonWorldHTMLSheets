@@ -310,6 +310,10 @@ var Field = Class.extend({
         return this.getValue();
     },
 
+    loadSavedValue: function loadSavedValue(value) {
+        this.updateValue(value);
+    },
+
     startEditing: function startEditing(target) {
         if (this.editing) {
             return;
@@ -318,7 +322,7 @@ var Field = Class.extend({
             this.input = this.renderEditing(target);
         }
         if (this.input) {
-            this.resetInput();
+            this.resetInput(target);
             this.element.html(this.input);
             this.editing = true;
             this.input.focus();
@@ -491,14 +495,14 @@ Field.loadFields = function (data, first) {
     $.each(first, function (index, name) {
         var field = Field.getField(name);
         if (field && data[name] != field.getDefaultValue()) {
-            field.updateValue(data[name]);
+            field.loadSavedValue(data[name]);
         }
     });
     $.each(Object.keys(data), function (index, name) {
         if (first.indexOf(name) < 0) {
             var field = Field.getField(name);
             if (field && data[name] != field.getDefaultValue()) {
-                field.updateValue(data[name]);
+                field.loadSavedValue(data[name]);
             }
         }
     });
@@ -693,13 +697,9 @@ var FieldDescriptionList = Field.extend({
         return null;
     },
 
-    updateValue: function updateValue(value) {
-        if (value instanceof Hash) {
-            this._super(value);
-        } else {
-            this.value.set(this.setKey, value);
-            this.renderField();
-        }
+    loadSavedValue: function loadSavedValue(value) {
+        this.value.set(this.setKey, value);
+        this.renderField();
     },
 
     getSaveValue: function getSaveValue() {
@@ -715,6 +715,7 @@ var FieldUnorderedList = Field.extend({
     init: function init(name, sortFn) {
         this._super(name);
         this.sortFn = sortFn;
+        this.actualValues = [];
     },
 
     emptyValue: function emptyValue() {
@@ -722,11 +723,39 @@ var FieldUnorderedList = Field.extend({
     },
 
     renderField: function renderField() {
+        this.element = $('#' + this.name);
         this.element.empty();
         var values = this.value.sort(this.sortFn);
         $.each(values, $.proxy(function (index, value) {
-            $('<li/>').html(value).appendTo(this.element);
+            if (index < this.actualValues.length && this.actualValues[index]) {
+                value = this.actualValues[index];
+            }
+            $('<li/>').html(value).addClass('editable').appendTo(this.element);
         }, this));
+    },
+
+    resetInput: function resetInput(target) {
+        this.element = target;
+        this.editingIndex = target.prevAll().length;
+        this.input.val(target.text());
+    },
+
+    updateValue: function updateValue(value) {
+        if (value instanceof Array) {
+            this._super(value);
+        } else {
+            this.actualValues[this.editingIndex] = value;
+            this.renderField();
+        }
+    },
+
+    loadSavedValue: function loadSavedValue(value) {
+        this.actualValues = value;
+        this.renderField();
+    },
+
+    getSaveValue: function getSaveValue() {
+        return this.actualValues;
     }
 
 });
@@ -910,7 +939,7 @@ var FieldStartingGear = Field.extend({
         }
     },
 
-    updateValue: function updateValue(value) {
+    loadSavedValue: function loadSavedValue(value) {
         this.selected = new Hash(value);
         this.renderField();
     },
