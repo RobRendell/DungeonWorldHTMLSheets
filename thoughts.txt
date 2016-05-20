@@ -7,7 +7,7 @@ BUGS
 
 TODO
 
-* Class-specific starting gear display.
+* Class-specific starting gear display is hacky (interacts directly with the panels rather than using modifiers).
 
 * Compendium class support.
 

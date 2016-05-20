@@ -188,13 +188,18 @@ var ModifierAddField = Modifier.extend({
     },
 
     isNumeric: function isNumeric(value) {
-        return !isNaN(parseFloat(value)) && isFinite(value);
+        return !isNaN(value) && isFinite(value);
     },
 
     apply: function apply(value) {
-        var sourceFieldValue = this.sourceField.getValue();
+        value = parseInt(value);
+        var sourceFieldValue = parseInt(this.sourceField.getValue());
         if (this.isNumeric(value) && this.isNumeric(sourceFieldValue)) {
-            return parseInt(value) + parseInt(sourceFieldValue);
+            return value + sourceFieldValue;
+        } else if (this.isNumeric(value)) {
+            return value;
+        } else if (this.isNumeric(sourceFieldValue)) {
+            return sourceFieldValue;
         } else {
             return '';
         }
@@ -342,7 +347,8 @@ var Field = Class.extend({
         if (evt.which == $.ui.keyCode.ESCAPE) {
             this.renderField();
             this.editing = false;
-        } else if (evt.which == $.ui.keyCode.ENTER || evt.which == $.ui.keyCode.TAB) {
+        } else if ((evt.which == $.ui.keyCode.ENTER && this.input[0].tagName != 'TEXTAREA')
+                || evt.which == $.ui.keyCode.TAB) {
             this.inputField(this.getInputValue());
             evt.preventDefault();
         } else {
@@ -798,14 +804,21 @@ var FieldMoveChoice = Field.extend({
 
 var FieldStartingGear = Field.extend({
 
+    switchText: 'SwitchToOngoingGear',
+
     init: function init(name) {
         this._super(name);
         this.classField = Field.getField("className");
         this.classField.addDependentField(this);
+        this.selected = new Hash();
     },
 
     renderField: function renderField() {
         this.element.empty();
+        if (Field.getField('ongoingGear').getValue() && Field.getField('ongoingGear').getValue().length > 0) {
+            $('#loadLabel').show();
+            return;
+        }
         var className = this.classField.getValue();
         var classPanel = CustomPanel.prototype.all.get('Class').get(className);
         var text = 'Your load is <span class="roll">' + classPanel.data.get('load') + '+Str</span>. You start with ' + classPanel.gearListToEnglish(classPanel.data.get('gear')) + '. ';
@@ -815,20 +828,186 @@ var FieldStartingGear = Field.extend({
                 choices[parseInt(panel.data.get('order')) - 1] = panel;
             }
         });
+        var finished = true;
         for (var index = 0; index < choices.length; ++index) {
             var panel = choices[index];
             text += panel.data.get('instructions') + ':';
             $('<div/>').html(text).appendTo(this.element);
+            var selected = this.selected.get(text) || [];
+            var selectionsRemaining = parseInt(panel.data.get('selections')) - selected.length;
+            if (selectionsRemaining < 0) {
+                selected.splice(0, -selectionsRemaining);
+            } else if (selectionsRemaining > 0) {
+                finished = false;
+            }
             text = '';
             panel.subPanels.each($.proxy(function (key, subPanel) {
-                var subPanelText = classPanel.gearListToEnglish(subPanel.data.get('gear'));
-                $('<li/>').html(subPanelText).appendTo(this.element);
+                var subPanelText = subPanel.data.get('gear');
+                var english = classPanel.gearListToEnglish(subPanelText);
+                var li = $('<li/>').html(english).addClass('editable');
+                li.data('subPanelText', subPanelText);
+                if (selected.indexOf(subPanelText) >= 0) {
+                    li.addClass('ticked');
+                }
+                li.appendTo(this.element);
             }, this));
+        }
+        if (finished) {
+            this.element.append($('<br/>'));
+            var finishedDiv = $('<div/>').addClass('editable unprintable buttonLike').text('Switch to ongoing gear display.');
+            finishedDiv.data('subPanelText', this.switchText);
+            this.element.append(finishedDiv);
         }
         while (this.element.height() < 200) {
             this.element.append($('<br/>'));
         }
+    },
+
+    renderEditing: function renderEditing(target) {
+        var text = target.data('subPanelText');
+        if (text == this.switchText) {
+            this.copyToOngoingGear();
+        } else {
+            var heading = target.prevAll('div').html();
+            this.toggleSelection(heading, text);
+        }
+        this.renderField();
+        return null;
+    },
+
+    toggleSelection: function toggleSelection(heading, selection) {
+        if (!this.selected.contains(heading)) {
+            this.selected.set(heading, []);
+        }
+        var selected = this.selected.get(heading);
+        var index = selected.indexOf(selection);
+        if (index >= 0) {
+            selected.splice(index, 1);
+        } else {
+            selected.push(selection);
+        }
+    },
+
+    updateValue: function updateValue(value) {
+        this.selected = new Hash(value);
+        this.renderField();
+    },
+
+    getSaveValue: function getSaveValue() {
+        return this.selected.items;
+    },
+
+    copyToOngoingGear: function copyToOngoingGear() {
+        var className = this.classField.getValue();
+        var classPanel = CustomPanel.prototype.all.get('Class').get(className);
+        var ongoingGear = Field.getField('ongoingGear');
+        ongoingGear.updateValue(new Hash());
+        ongoingGear.addGear(classPanel.data.get('gear').split(/\s*;\s*/));
+        this.selected.each($.proxy(function (key, selections) {
+            $.each(selections, $.proxy(function (index, gearList) {
+                ongoingGear.addGear(gearList.split(/\s*;\s*/));
+            }, this));
+        }, this));
+        ongoingGear.renderField();
     }
+
+});
+
+// -------------------- FieldOngoingGear is used to display gear once starting gear is selected --------------------
+
+var FieldOngoingGear = Field.extend({
+
+    numberRE: /^([1-9][0-9]*) (x +)?(.*)/,
+
+    weightRE: /\(.*([1-9][0-9]*) weight/,
+
+    renderEditing: function renderEditing() {
+        return $("<textarea style='width: 190%' rows='10'/>");
+    },
+
+    resetInput: function resetInput() {
+        var text = '';
+        this.value.each(function (item, number) {
+            if (number == 1) {
+                text += item;
+            } else {
+                text += number + ' x ' + item;
+            }
+            text += '\n';
+        });
+        this.input.val(text);
+    },
+
+    inputField: function inputField(value) {
+        this.value = new Hash();
+        this.addGear(value.split(/\s*[\n\r]+\s*/));
+        this._super(this.value);
+    },
+
+    renderField: function renderField() {
+        this.element.empty();
+        if (this.value.length == 0) {
+            $('#loadLabel').hide();
+            Field.getField('startingGear').renderField();
+            return;
+        }
+        var total = 0;
+        this.value.each($.proxy(function (item, number) {
+            if (number == 1) {
+                $('<li/>').text(item).appendTo(this.element);
+            } else {
+                $('<li/>').html(number + ' &times; ' + item).appendTo(this.element);
+            }
+            var weight = this.getWeight(item);
+            total += parseInt(weight * number);
+        }, this));
+        while (this.element.height() < 200) {
+            this.element.append($('<br/>'));
+        }
+        this.element.append($('<div/>').text('Total weight carried: ' + total));
+    },
+
+    addGear: function addGear(gearList) {
+        $.each(gearList, $.proxy(function (index, item) {
+            var match = this.numberRE.exec(item);
+            var number = 1;
+            if (match) {
+                number = parseInt(match[1]);
+                item = match[3];
+            }
+            if (item) {
+                if (this.value.contains(item)) {
+                    this.value.set(item, number + this.value.get(item));
+                } else {
+                    this.value.set(item, number);
+                }
+            }
+        }, this));
+    },
+
+    getWeight: function getWeight(item) {
+        if (item == 'coins') {
+            return 0.01;
+        }
+        var match = this.weightRE.exec(item);
+        if (match) {
+            return parseInt(match[1]);
+        } else {
+            return 0;
+        }
+    },
+
+    updateValue: function updateValue(value) {
+        if (!(value instanceof Hash)) {
+            value = new Hash(value);
+        }
+        this._super(value);
+    },
+
+    getSaveValue: function getSaveValue() {
+        return (this.value) ? this.value.items : null;
+    },
+
 });
 
 // ==================== Initialise everything ====================
@@ -871,7 +1050,12 @@ $(document).ready(function () {
         return CustomPanel.prototype.all.get('Class').keys().sort();
     });
 
+    new FieldInt("baseLoad");
+    new FieldInt("loadField");
+    new ModifierAddField("loadField", "baseLoad");
+    new ModifierAddField("loadField", "str");
     new FieldStartingGear("startingGear");
+    new FieldOngoingGear("ongoingGear");
 
     new FieldMoveChoice("startingMoveChoice", 1, undefined, "Choose one of these to start with:", "You also start with all of these:");
     new FieldMoveChoice("startingMoves", "Starting", undefined, undefined, undefined, "startingMoveLHS");
@@ -899,7 +1083,7 @@ $(document).ready(function () {
             reader.readAsText(file);
             reader.onload = function (evt) {
                 var saveData = JSON.parse(reader.result);
-                Field.loadFields(saveData.fields, [ 'className' ]);
+                Field.loadFields(saveData.fields, [ 'ongoingGear', 'className' ]);
                 topPanel.setData(saveData.sourceData, true)
             };
         });

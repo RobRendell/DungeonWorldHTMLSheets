@@ -738,6 +738,7 @@ var CharacterClassPanel = CustomPanel.extend({
             this.compiled.push(new ModifierClass('diceIcon', name, diceIcon));
             this.compiled.push(new ModifierClass('baseHp', name, this.data.get('baseHp')));
             this.compiled.push(new ModifierClass('classIcon', name, this.data.get('classIcon')));
+            this.compiled.push(new ModifierClass('baseLoad', name, this.data.get('load')));
         }
         this.subPanels.each(function (key, subPanel) {
             subPanel.compile(execute);

@@ -287,6 +287,20 @@ dd + dt {
     margin-top: 3pt;
 }
 
+.buttonLike {
+    border: 1px solid;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    padding-left: 1em;
+}
+
+#loadLabel {
+    float: right;
+    margin-right: 2em;
+    display: none;
+}
+
 .moves > dt {
     font-size: 11.2pt;
     font-variant: small-caps;
