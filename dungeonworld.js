@@ -844,7 +844,12 @@ var FieldMoveChoice = Field.extend({
         if (value instanceof Array) {
             this._super(value);
         } else {
-            this.value.push(value);
+            var index = this.value.indexOf(value);
+            if (index >= 0) {
+                this.value.splice(index, 1);
+            } else {
+                this.value.push(value);
+            }
             this.renderField();
         }
     }
