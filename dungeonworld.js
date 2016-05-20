@@ -760,6 +760,10 @@ var FieldMoveChoice = Field.extend({
         return result;
     },
 
+    emptyValue: function emptyValue() {
+        return [];
+    },
+
     sortFn: function sortFn(a, b) {
         var aOrder = a.data.get('order');
         var aName = a.data.get('name');
@@ -789,12 +793,30 @@ var FieldMoveChoice = Field.extend({
                 $('<div/>').addClass('heading').addClass('left').html(name).appendTo(this.lhsElement);
                 $('<div/>').html(move).appendTo(this.lhsElement);
             } else {
-                $('<dt/>').html(name).appendTo(this.element);
+                var dt = $('<dt/>').html(name).addClass('editable');
+                if (this.value.indexOf(name) >= 0) {
+                    dt.addClass('ticked');
+                }
+                dt.appendTo(this.element);
                 $('<dd/>').html(move).appendTo(this.element);
             }
         }, this));
         if (result.length > 0 && this.textAfter) {
             this.element.append($('<b/>').html(this.textAfter));
+        }
+    },
+
+    renderEditing: function renderEditing(target) {
+        this.updateValue(target.text());
+        return null;
+    },
+
+    updateValue: function updateValue(value) {
+        if (value instanceof Array) {
+            this._super(value);
+        } else {
+            this.value.push(value);
+            this.renderField();
         }
     }
 

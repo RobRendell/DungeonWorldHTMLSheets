@@ -15,8 +15,6 @@ TODO
 
 * Do I want explicitly configured items through Source Data and a full inventory editor in-sheet?
 
-* Ticking moves in checklists.
-
 * Checklist fields should have a limit (= level for moves, 1 for race/alignment etc.), and when they have that many selections ticked they hide all non-ticked options (or alternatively end user chooses whether to hide unticked options per-field)
 
 * Moves should be able to add modifiers to the character if they're selected.
