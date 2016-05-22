@@ -881,21 +881,37 @@ var FieldMoveChoice = Field.extend({
                 $('<div/>').addClass('heading').addClass('left').html(name).appendTo(this.lhsElement);
                 $('<div/>').html(move).appendTo(this.lhsElement);
             } else {
-                var dt = $('<dt/>').html(name).addClass('editable');
-                if (this.value.indexOf(name) >= 0) {
-                    dt.addClass('ticked');
-                }
-                dt.appendTo(this.element);
+                $('<dt/>').html(name).appendTo(this.element);
                 $('<dd/>').html(move).appendTo(this.element);
             }
         }, this));
         if (result.length > 0 && this.textAfter) {
             this.element.append($('<b/>').html(this.textAfter));
         }
+        if (this.element.is('.checklist')) {
+            this.element.find('dt').addClass('editable');
+        }
+        this.element.find('.checklist li').addClass('editable');
+        $.each(this.value, $.proxy(function (index, name) {
+            var textVals = name.split('|')
+            var dt = this.element.find(':contains("' + textVals[0] + '")');
+            if (textVals.length == 1) {
+                dt.addClass('ticked');
+            } else if (textVals.length == 2) {
+                var dd = dt.next();
+                dd.find(':contains("' + textVals[1] + '")').addClass('ticked');
+            }
+        }, this));
     },
 
     renderEditing: function renderEditing(target) {
-        this.updateValue(target.text());
+        var value = target.text();
+        var enclosingDD = target.closest('dd');
+        if (enclosingDD.length > 0) {
+            var dt = enclosingDD.prev();
+            value = dt.text() + '|' + value;
+        }
+        this.updateValue(value);
         return null;
     },
 
