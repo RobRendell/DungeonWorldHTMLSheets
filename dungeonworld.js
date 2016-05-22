@@ -1245,6 +1245,14 @@ $(document).ready(function () {
             }, 1);
         });
     }).append($('<div/>').addClass('downloadLinkDiv'));
+    menu.addMenuItem('Hide unticked options', function () {
+        $('.hideUnticked, .checklist li.editable, .checklist dt.editable, .checklist dt.editable + dd').hide();
+        $('.showUnticked, .checklist li.editable.ticked, .checklist dt.editable.ticked, .checklist dt.editable.ticked + dd').show();
+    }).addClass('hideUnticked');
+    menu.addMenuItem('Show unticked options', function () {
+        $('.showUnticked').hide();
+        $('.hideUnticked, .checklist li.editable, .checklist dt.editable, .checklist dt.editable + dd').show();
+    }).addClass('showUnticked').hide();
 //    menu.addMenuItem("Save to URL");
 
     menu.addMenuItem('<hr/>');
