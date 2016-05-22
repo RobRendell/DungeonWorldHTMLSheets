@@ -660,7 +660,7 @@ var CharacterClassPanel = CustomPanel.extend({
         return this.data.get('name');
     },
 
-    gearWithTags: function (request, response) {
+    gearWithTags: function (request, response, keepCost) {
         var hash = CustomPanel.prototype.all.get('Gear');
         var searchTerm = request.term.toLowerCase();
         var multiples = searchTerm.match(/([0-9]+\s*x\s*)(.*)/);
@@ -675,7 +675,9 @@ var CharacterClassPanel = CustomPanel.extend({
                 var result = entry.data.get('name');
                 if (entry.data.get('tags')) {
                     var tags = entry.data.get('tags');
-                    tags = tags.replace(/(^|,\s*)[0-9]+ coin(s?)(\s*,\s*)?/, '$1');
+                    if (!keepCost) {
+                        tags = tags.replace(/(^|,\s*)[0-9]+ coin(s?)(\s*,\s*)?/, '$1');
+                    }
                     result += ' (' + tags + ')';;
                 }
                 if (result.toLowerCase().indexOf(searchTerm) >= 0) {

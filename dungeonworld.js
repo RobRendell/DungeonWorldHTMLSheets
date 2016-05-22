@@ -1,13 +1,66 @@
 
 // ==================== Some utility methods ====================
 
-function multiAutocomplete(input, separator) {
+(function ($) {
+    $.fn.getCursorPosition = function() {
+        var element = $(this).get(0);
+        var pos = 0;
+        if ('selectionStart' in element) {
+            pos = element.selectionStart;
+        } else if ('selection' in document) {
+            element.focus();
+            var selection = document.selection.createRange();
+            var length = selection.text.length;
+            selection.moveStart('character', -element.value.length);
+            pos = selection.text.length - length;
+        }
+        return pos;
+    }
 
+    $.fn.setCursorPosition = function(pos) {
+        var element = $(this).get(0);
+        if ('setSelectionRange' in element) {
+            element.setSelectionRange(pos, pos);
+        } else if ('createTextRange' in element) {
+            var range = element.createTextRange();
+            range.collapse(true);
+            if (pos < 0) {
+                pos = $(element).val().length + pos;
+            }
+            range.moveEnd('character', pos);
+            range.moveStart('character', pos);
+            range.select();
+        }
+    }
+
+})(jQuery);
+
+function extractSeparatedField(text, position, separator) {
+    var depth = 0;
+    var fieldStart = 0;
+    for (var pos = 0; pos < text.length; ++pos) {
+        if (text[pos] == '(') {
+            depth++;
+        } else if (text[pos] == ')') {
+            depth--;
+        } else if (depth == 0 && text[pos] == separator) {
+            if (pos < position) {
+                fieldStart = pos + 1;
+            } else {
+                return [text.substring(0, fieldStart), text.substring(fieldStart, pos), text.substring(pos)];
+            }
+        }
+    }
+    return [text.substring(0, fieldStart), text.substring(fieldStart), ''];
+}
+
+function multiAutocomplete(input, separator) {
     var originalSource = input.autocomplete('option', 'source');
-    var splitRegexString = '\\s*' + separator + '\\s*(?![^(]*\\))';
-    var splitRegex = new RegExp(splitRegexString);
+    var cursorPos;
     input.autocomplete('option', 'source', function (request, response) {
-        request.term = request.term.split(splitRegex).pop();
+        cursorPos = input.getCursorPosition();
+        var fields = extractSeparatedField(request.term, cursorPos, separator);
+        request.term = fields[1];
         if (originalSource instanceof Array) {
             var matching = $.grep(originalSource, function (entry) {
                 return (entry.toLowerCase().indexOf(request.term.toLowerCase()) >= 0);
@@ -20,20 +73,26 @@ function multiAutocomplete(input, separator) {
         }
     });
     input.on('autocompletesearch', function(evt) {
+        cursorPos = input.getCursorPosition();
+        var fields = extractSeparatedField(this.value, cursorPos, separator);
         // custom minLength
-        var searchTerm = this.value.split(splitRegex).pop();
-        if (searchTerm.length < 2) {
-                return false;
-        }
+        return (fields[1].length >= 2);
     });
     input.on('autocompleteselect autocompletefocus', function (evt, ui) {
         if (ui && ui.item && (evt.type == 'autocompleteselect' || evt.keyCode)) {
-            var terms = this.value.split(splitRegex);
-            terms.pop();
-            terms.push(ui.item.value);
-            this.value = terms.join(separator + ' ');
+            cursorPos = input.getCursorPosition();
+            var fields = extractSeparatedField(this.value, cursorPos, separator);
+            this.value = fields[0] + ui.item.value + fields[2];
+            window.setTimeout(function () {
+                input.setCursorPosition(cursorPos);
+            }, 1);
             return false;
         }
+    });
+    input.autocomplete('widget').on('menublur', function (evt) {
+        window.setTimeout(function () {
+            input.setCursorPosition(cursorPos);
+        }, 1);
     });
     input.keydown(function(evt) {
         if (evt.keyCode === $.ui.keyCode.TAB && $(this).data("ui-autocomplete").menu.active) {
@@ -992,6 +1051,10 @@ var FieldOngoingGear = Field.extend({
             text += '\n';
         });
         this.input.val(text);
+        this.input.autocomplete({ source: function (request, response) {
+           CharacterClassPanel.prototype.gearWithTags(request, response, true);
+        }, appendTo: $('#advancedMovesTop') });
+        multiAutocomplete(this.input, '\n');
     },
 
     inputField: function inputField(value) {
