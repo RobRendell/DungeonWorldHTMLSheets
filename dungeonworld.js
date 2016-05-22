@@ -752,7 +752,7 @@ var FieldDescriptionList = Field.extend({
     },
 
     renderEditing: function renderEditing(target) {
-        this.updateValue(target.text());
+        this.loadSavedValue(target.text());
         return null;
     },
 
