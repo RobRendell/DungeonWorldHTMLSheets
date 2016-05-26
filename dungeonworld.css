@@ -293,6 +293,7 @@ dd + dt {
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     padding-left: 1em;
+    cursor: pointer;
 }
 
 #loadLabel {

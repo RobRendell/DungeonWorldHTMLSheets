@@ -15,14 +15,20 @@ TODO
 
 * Do I want explicitly configured items through Source Data and a full inventory editor in-sheet?
 
-* Checklist fields should have a limit (= level for moves, 1 for race/alignment etc.), and when they have that many selections ticked they hide all non-ticked options (or alternatively end user chooses whether to hide unticked options per-field)
+* Make hide/show unticked options per-field?
 
-* Moves should be able to add modifiers to the character if they're selected.
+* Option/control to merge custom data from save file (overwriting same things), so GMs can send out updates and players
+    can merge them into existing character (or for starting a new character based on the same custom data as an existing
+    one).
 
-* Allow embedding custom stuff into the text of a move, which will be how choices like the Fighter's signature weapon and the Druid's land can be an editable and saved.
+* Moves should be able to add modifiers to the character if they're selected.  Multi-class moves in particular need to do something to add the other class' move details.
 
 * Make class icon "editor" only show the dimensions and path, rather than the entire SVG (anti-xss)
 
 * Find out what else is open content from Kickstarter 2012, and add it.
 
 * Add Grim Portents issue 1 races, compendium classes and classes as a source book (code change required: Bladeling race has advanced moves).
+
+* Handle alternative names for Alignment (Drive) and Bond (Background, Flag)?
+
+* Put code.js, kickstarter2012.js data into a single calls to addSourceData?

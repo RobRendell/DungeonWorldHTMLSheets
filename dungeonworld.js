@@ -725,9 +725,10 @@ var FieldDescriptionList = Field.extend({
 
     setKey: '_set',
 
-    init: function init(name, sortFn) {
+    init: function init(name, sortFn, customOptionsFn) {
         this._super(name);
         this.sortFn = sortFn;
+        this.customOptionsFn = customOptionsFn;
     },
 
     emptyValue: function emptyValue() {
@@ -749,11 +750,37 @@ var FieldDescriptionList = Field.extend({
                 $('<dd/>').html(value).appendTo(this.element);
             }
         }, this));
+        if (set instanceof Array) {
+            $('<dt/>').html(set[0]).addClass('ticked editable custom').appendTo(this.element);
+            $('<dd/>').html(set[1]).appendTo(this.element);
+        }
     },
 
     renderEditing: function renderEditing(target) {
-        this.loadSavedValue(target.text());
-        return null;
+        if (target.is('.custom')) {
+            return $('<input size="40"/>');
+        } else {
+            this.loadSavedValue(target.text());
+            return null;
+        }
+    },
+
+    resetInput: function resetInput(target) {
+        var set = this.value.get(this.setKey);
+        var currentValue = (set[0] && set[1]) ? set[0] + ': ' + set[1] : '';
+        this.input.val(currentValue);
+        var options = this.customOptionsFn();
+        this.input.autocomplete({ source: options });
+    },
+
+    updateValue: function updateValue(value) {
+        if (value instanceof Hash) {
+            return this._super(value);
+        } else if (this.value.get(this.setKey) instanceof Array) {
+            this.value.set(this.setKey, value.split(': '));
+            this.renderField();
+            this.input = null;
+        }
     },
 
     loadSavedValue: function loadSavedValue(value) {
@@ -1175,12 +1202,27 @@ $(document).ready(function () {
     new FieldInt("level");
     new FieldInt("xp");
 
-    new FieldDescriptionList("alignment", function (a, b) {
+    var alignmentField = new FieldDescriptionList("alignment", function (a, b) {
         var order = ['Lawful', 'Good', 'Neutral', 'Chaotic', 'Evil'];
         var aIndex = order.indexOf(a);
         var bIndex = order.indexOf(b);
-        return cmp(aIndex, bIndex);
+        if (aIndex > -1 || bIndex > -1) {
+            return cmp(aIndex, bIndex);
+        } else {
+            return cmp(a, b);
+        }
+    }, function () {
+        var result = [];
+        CustomPanel.prototype.all.get('Alignment Move').each(function (index, panel) {
+            result.push(panel.data.get('alignment') + ': ' + panel.data.get('move'));
+        });
+        return result.sort();
     });
+    $('#addCustomAlignment').click($.proxy(function () {
+        alignmentField.loadSavedValue([]);
+        $('#addCustomAlignment').hide();
+    }, this));
+
     new FieldDescriptionList("race");
     new FieldUnorderedList("bonds");
 

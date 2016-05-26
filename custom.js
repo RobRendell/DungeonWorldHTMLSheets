@@ -312,7 +312,18 @@ var CustomPanel = Class.extend({
     },
 
     addSubPanelButtons: function addSubPanelButtons(panelTypes) {
-        $.each(panelTypes, $.proxy(function (index, panelType) {
+        var sorted = panelTypes.sort(function (o1, o2) {
+            var name1 = o1.prototype.className;
+            var name2 = o2.prototype.className;
+            if (name1 < name2) {
+                return -1;
+            } else if (name1 > name2) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        $.each(panelTypes.sort(), $.proxy(function (index, panelType) {
             $('<button/>').html('Add ' + panelType.prototype.panelTitle).click(panelType, $.proxy(this.openSubPanel, this)).appendTo(this.panelDiv);
         }, this));
     },
@@ -528,12 +539,14 @@ var CustomPanel = Class.extend({
 });
 
 (function augmentExtend() {
-    var prevExtend = $.proxy(CustomPanel.extend, CustomPanel);
-    CustomPanel.extend = function extend(data) {
-        var newClass = prevExtend(data);
+    var prevExtend = CustomPanel.extend;
+    var newExtend = function extend() {
+        var newClass = prevExtend.apply(this, arguments);
         CustomPanel.prototype.typeMap.set(newClass.prototype.className, newClass);
+        newClass.extend = newExtend;
         return newClass;
-    }
+    };
+    CustomPanel.extend = newExtend;
 })();
 
 // -------------------- TopPanel is the top-level source data panel --------------------
@@ -580,7 +593,7 @@ var TopPanel = CustomPanel.extend({
             var type = levelTwo.text;
             var book = Sourcebook.prototype.all.get(sourceName);
             var entries = book.data.get(type);
-            if (parentNode.level == 2 && entries.length > 25) {
+            if (parentNode.level == 2 && entries.length > 20) {
                 var previous = null;
                 $.each(entries.keys().sort(), function (index, name) {
                     var firstSpace = name.indexOf(' ');
@@ -634,7 +647,7 @@ var TopPanel = CustomPanel.extend({
         $("<p/>").text('You can also create new custom features by clicking the buttons at the bottom of this page.').appendTo(this.panelDiv);
         this.appendTree();
         $('<hr/>').appendTo(this.panelDiv);
-        this.addSubPanelButtons([ CharacterClassPanel, RacePanel, ClassMovePanel, GearPanel ]);
+        this.addSubPanelButtons([ CharacterClassPanel, RacePanel, ClassMovePanel, AlignmentPanel, GearPanel ]);
         $('<hr/>').appendTo(this.panelDiv);
         $('<button/>').text('Done').click($.proxy(this.hidePanel, this)).appendTo(this.panelDiv);
     },
@@ -815,27 +828,26 @@ var GearOptionPanel = CustomPanel.extend({
 
 });
 
-// -------------------- ClassAlignmentPanel defines a single class-specific alignment move --------------------
+// -------------------- AlignmentPanel defines a single alignment move --------------------
 
-var ClassAlignmentPanel = CustomPanel.extend({
+var AlignmentPanel = CustomPanel.extend({
 
-    panelTitle: 'Alignment Move for Class',
+    panelTitle: 'Alignment Move',
 
-    className: 'ClassAlignmentPanel',
+    className: 'AlignmentPanel',
 
     getShortName: function getShortName() {
-        return 'Alignment Move "' + this.data.get('alignment') + '"';
+        return this.data.get('alignment') + ' Alignment Move: ' + this.data.get('move');
     },
 
-    renderPanel: function renderPanel() {
+    renderPanel: function renderPanel(hideSource) {
         this._super();
+        if (!hideSource) {
+            this.appendSourceRow();
+        }
         this.appendFormTableRow('Alignment', 'alignment');
         this.appendFormTableRow('Move', 'move', 'textarea').attr('rows', 4).attr('cols', 120);
         this.appendFooter();
-    },
-
-    getPanelTitle: function getPanelTitle() {
-        return this.panelTitle + ' ' + this.parentPanel.form.find('input[name=name]').val();
     },
 
     compile: function compile(execute) {
@@ -845,6 +857,34 @@ var ClassAlignmentPanel = CustomPanel.extend({
             return "Alignment Move for Class must have a move!";
         if (execute) {
             this.removeCompiled();
+        }
+    }
+
+});
+
+// -------------------- ClassAlignmentPanel defines a single class-specific alignment move --------------------
+
+var ClassAlignmentPanel = AlignmentPanel.extend({
+
+    panelTitle: 'Alignment Move for Class',
+
+    className: 'ClassAlignmentPanel',
+
+    getShortName: function getShortName() {
+        return 'Alignment Move "' + this.data.get('alignment') + '"';
+    },
+
+    getPanelTitle: function getPanelTitle() {
+        return this.panelTitle + ' ' + this.parentPanel.form.find('input[name=name]').val();
+    },
+
+    renderPanel: function renderPanel() {
+        this._super(true);
+    },
+
+    compile: function compile(execute) {
+        this._super(execute);
+        if (execute) {
             var className = this.parentPanel.data.get('name');
             this.compiled.push(new ModifierClassHashSet('alignment', className, this.data.get('alignment'), this.data.get('move')));
         }
@@ -1121,4 +1161,3 @@ var GearPanel = CustomPanel.extend({
     }
 
 });
-
