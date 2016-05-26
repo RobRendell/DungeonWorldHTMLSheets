@@ -29,6 +29,4 @@ TODO
 
 * Add Grim Portents issue 1 races, compendium classes and classes as a source book (code change required: Bladeling race has advanced moves).
 
-* Handle alternative names for Alignment (Drive) and Bond (Background, Flag)?
-
 * Put code.js, kickstarter2012.js data into a single calls to addSourceData?

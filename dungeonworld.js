@@ -1206,6 +1206,7 @@ $(document).ready(function () {
     new FieldInt("level");
     new FieldInt("xp");
 
+    new Field("alignmentHeading");
     var alignmentField = new FieldDescriptionList("alignment", function (a, b) {
         var order = ['Lawful', 'Good', 'Neutral', 'Chaotic', 'Evil'];
         var aIndex = order.indexOf(a);
@@ -1227,7 +1228,9 @@ $(document).ready(function () {
         $('#addCustomAlignment').hide();
     }, this));
 
+    new Field("raceHeading");
     new FieldDescriptionList("race");
+    new Field("bondsHeading");
     new FieldUnorderedList("bonds");
 
     new FieldChoice("className", function () {
