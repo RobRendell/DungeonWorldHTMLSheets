@@ -501,50 +501,50 @@ $(document).ready(function () {
 
     $.addSourceData([ [ "GearPanel", {source: "Dungeon World Core", type: "Poison", name: "Serpent's Tears", tags: "dangerous, touch, 10 coins, 0 weight", description: "Anyone dealing damage against the target rolls twice and takes the better result." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Uphold the letter of the law over the spirit" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Uphold the letter of the law over the spirit." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Fulfill a promise of import" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Fulfill a promise of import." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Bring someone to justice" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Bring someone to justice." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Choose honor over personal gain" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Choose honor over personal gain." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Return treasure to its rightful owner" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Lawful", move: "Return treasure to its rightful owner." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Ignore danger to aid another" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Ignore danger to aid another." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Lead others into righteous battle" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Lead others into righteous battle." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Give up powers or riches for the greater good" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Give up powers or riches for the greater good." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Reveal a dangerous lie" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Reveal a dangerous lie." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Show mercy" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Good", move: "Show mercy." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Neutral", move: "Make an ally of someone powerful" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Neutral", move: "Make an ally of someone powerful." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Neutral", move: "Defeat a personally important foe" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Neutral", move: "Defeat a personally important foe." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Neutral", move: "Learn a secret about an enemy" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Neutral", move: "Learn a secret about an enemy." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Neutral", move: "Uncover a hidden truth" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Neutral", move: "Uncover a hidden truth." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Chaotic", move: "Reveal corruption" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Chaotic", move: "Reveal corruption." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Chaotic", move: "Break an unjust law to benefit another" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Chaotic", move: "Break an unjust law to benefit another." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Chaotic", move: "Defeat a tyrant" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Chaotic", move: "Defeat a tyrant." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Chaotic", move: "Reveal hypocrisy" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Chaotic", move: "Reveal hypocrisy." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Take advantage of someone's trust" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Take advantage of someone's trust." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Cause suffering for its own sake" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Cause suffering for its own sake." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Destroy something beautiful" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Destroy something beautiful." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Upset the rightful order" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Upset the rightful order." } ] ]);
 
-    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Harm an innocent" } ] ]);
+    $.addSourceData([ [ "AlignmentPanel", { source: "Dungeon World Core", alignment: "Evil", move: "Harm an innocent." } ] ]);
 
 });

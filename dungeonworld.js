@@ -776,8 +776,12 @@ var FieldDescriptionList = Field.extend({
     updateValue: function updateValue(value) {
         if (value instanceof Hash) {
             return this._super(value);
-        } else if (this.value.get(this.setKey) instanceof Array) {
-            this.value.set(this.setKey, value.split(': '));
+        } else {
+            var newValue = value.split(': ');
+            while (newValue.length < 2) {
+                newValue.push('');
+            }
+            this.value.set(this.setKey, newValue);
             this.renderField();
             this.input = null;
         }
@@ -1219,7 +1223,7 @@ $(document).ready(function () {
         return result.sort();
     });
     $('#addCustomAlignment').click($.proxy(function () {
-        alignmentField.loadSavedValue([]);
+        alignmentField.loadSavedValue(['Click to edit']);
         $('#addCustomAlignment').hide();
     }, this));
 
