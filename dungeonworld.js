@@ -908,6 +908,11 @@ var FieldMoveChoice = Field.extend({
         $.each(result, $.proxy(function (index, movePanel) {
             var name = movePanel.data.get("name");
             var move = movePanel.data.get("move");
+            var prerequisiteType = movePanel.data.get("prerequisiteType");
+            var prerequisite = movePanel.data.get("prerequisite");
+            if (prerequisiteType == 'Requires' || prerequisiteType == 'Replaces') {
+                move = '<i>' + prerequisiteType + ': ' + prerequisite + '</i><br/>' + move;
+            }
             if (this.lhsElement.length > 0 && movePanel.data.get('order') == 'LHS') {
                 $('<div/>').addClass('heading').addClass('left').html(name).appendTo(this.lhsElement);
                 $('<div/>').html(move).appendTo(this.lhsElement);
