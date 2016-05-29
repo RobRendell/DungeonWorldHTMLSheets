@@ -1,4 +1,3 @@
-
 BUGS
 
 * Hitting enter while editing source data submits the page (can't reproduce?)
@@ -6,8 +5,6 @@ BUGS
 * "New character" menu item doesn't clear starting moves
 
 TODO
-
-* Class-specific starting gear display is hacky (interacts directly with the panels rather than using modifiers).
 
 * Compendium class support.
 
@@ -33,3 +30,6 @@ TODO
 * Add Grim Portents issue 1 races, compendium classes and classes as a source book (code change required: Bladeling race has advanced moves).
 
 * Put code.js, kickstarter2012.js data into a single calls to addSourceData?
+
+* Class-specific starting gear display is hacky (interacts directly with the panels rather than using modifiers).
+
