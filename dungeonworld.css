@@ -15,10 +15,6 @@ body {
     font-family: Arial, Verdana, Helvetica, sans-serif;
 }
 
-.downloadLinkDiv {
-    margin-left: 1.5em;
-}
-
 .unprintable {
     color: #aa0000;
 }

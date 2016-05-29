@@ -1380,15 +1380,12 @@ $(document).ready(function () {
         var saveData = { fields: fields, sourceData: topPanelData[1] };
         var blob = new Blob([ JSON.stringify(saveData) ], { type: 'text/plain' });
         var url = window.URL.createObjectURL(blob);
-        var downloadLink = $('<a/>').text('Download ready').attr({ 'href': url, 'download': name + '.txt' });
-        $('.downloadLinkDiv').append(downloadLink);
-        downloadLink.click(function () {
-            downloadLink.remove();
-            window.setTimeout(function () {
-                window.URL.revokeObjectURL(url);
-            }, 1);
-        });
-    }).append($('<div/>').addClass('downloadLinkDiv'));
+        var downloadLink = $('<a/>').attr({ 'href': url, 'download': name + '.txt' });
+        $('body').append(downloadLink);
+        downloadLink.get(0).click();
+        window.URL.revokeObjectURL(url);
+        downloadLink.remove();
+    });
     menu.addMenuItem('Hide unticked options', function () {
         $('.hideUnticked, .checklist li.editable, .checklist dt.editable, .checklist dt.editable + dd').hide();
         $('.showUnticked, .checklist li.editable.ticked, .checklist dt.editable.ticked, .checklist dt.editable.ticked + dd').show();
