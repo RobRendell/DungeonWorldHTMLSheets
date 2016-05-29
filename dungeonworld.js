@@ -897,6 +897,16 @@ var FieldMoveChoice = Field.extend({
         return cmp(aOrder, bOrder) || cmp(aName, bName);
     },
 
+    getMoveFromPanel: function getMoveFromPanel(movePanel) {
+        var move = movePanel.data.get("move");
+        var prerequisiteType = movePanel.data.get("prerequisiteType");
+        var prerequisite = movePanel.data.get("prerequisite");
+        if (prerequisiteType == 'Requires' || prerequisiteType == 'Replaces') {
+            move = '<i>' + prerequisiteType + ': ' + prerequisite + '</i><br/>' + move;
+        }
+        return move;
+    },
+
     renderField: function renderField() {
         this.element.empty();
         this.lhsElement.empty();
@@ -907,12 +917,7 @@ var FieldMoveChoice = Field.extend({
         }
         $.each(result, $.proxy(function (index, movePanel) {
             var name = movePanel.data.get("name");
-            var move = movePanel.data.get("move");
-            var prerequisiteType = movePanel.data.get("prerequisiteType");
-            var prerequisite = movePanel.data.get("prerequisite");
-            if (prerequisiteType == 'Requires' || prerequisiteType == 'Replaces') {
-                move = '<i>' + prerequisiteType + ': ' + prerequisite + '</i><br/>' + move;
-            }
+            var move = this.getMoveFromPanel(movePanel);
             if (this.lhsElement.length > 0 && movePanel.data.get('order') == 'LHS') {
                 $('<div/>').addClass('heading').addClass('left').html(name).appendTo(this.lhsElement);
                 $('<div/>').html(move).appendTo(this.lhsElement);
@@ -963,6 +968,86 @@ var FieldMoveChoice = Field.extend({
             }
             this.renderField();
         }
+    }
+
+});
+
+// -------------------- FieldMoveExtra is a field for showing multiclass or Compendium Class moves --------------------
+
+var FieldMoveExtra = FieldMoveChoice.extend({
+
+    init: function init(name) {
+        this._super(name);
+    },
+
+    emptyValue: function emptyValue() {
+        return [];
+    },
+
+    renderEditing: function renderEditing(target) {
+        return $('<input size="40"/>');
+    },
+
+    getKeyFromPanel: function getKeyFromPanel(movePanel) {
+        return movePanel.data.get('className') + ': ' + movePanel.data.get('name');
+    },
+
+    getMatchingMoves: function getMatchingMoves() {
+        var className = this.classField.getValue();
+        var allMoves = CustomPanel.prototype.all.get('Class Move');
+        var result = [];
+        allMoves.each($.proxy(function (moveId, movePanel) {
+            result.push(this.getKeyFromPanel(movePanel));
+        }, this));
+        return result;
+    },
+
+    resetInput: function resetInput(target) {
+        this.element = target;
+        var text = target.text();
+        if (text.indexOf(': ') < 0) {
+            text = '';
+        }
+        this.input.val(text);
+        var options = this.getMatchingMoves();
+        this.input.autocomplete({ source: options });
+    },
+
+    updateValue: function updateValue(value) {
+        if (value instanceof Array) {
+            this._super(value);
+        } else {
+            var index = this.input.parent().prevAll('dt').length;
+            this.value[index] = value;
+            this._super(this.value);
+        }
+    },
+
+    renderField: function renderField() {
+        this.element = $('#' + this.name);
+        this.element.empty();
+        var allMoves = CustomPanel.prototype.all.get('Class Move');
+        var remaining = this.value.length;
+        allMoves.each($.proxy(function (moveId, movePanel) {
+            var key = this.getKeyFromPanel(movePanel);
+            if (this.value.indexOf(key) >= 0) {
+                if (this.value.length == remaining--) {
+                    $('<span/>').text('Additional moves you know:').addClass('moveHeader').appendTo(this.element);
+                }
+                var name = movePanel.data.get("name");
+                var move = this.getMoveFromPanel(movePanel);
+                $('<dt/>').html(name).addClass('ticked editable').appendTo(this.element);
+                $('<dd/>').html(move).appendTo(this.element);
+            }
+        }, this));
+        while (remaining-- > 0) {
+            $('<dt/>').html('Click to edit').addClass('editable').appendTo(this.element);
+        }
+    },
+
+    addChoice: function addChoice() {
+        this.value.push('Click to edit');
+        this.renderField();
     }
 
 });
@@ -1254,6 +1339,11 @@ $(document).ready(function () {
     new FieldMoveChoice("advancedMoves2nd", 2, 2, "You may take this move only if it is your first advancement.");
     new FieldMoveChoice("advancedMovesLower", 2, 10);
     new FieldMoveChoice("advancedMovesHigher", 6, 10);
+
+    var fieldMoveExtra = new FieldMoveExtra("extraMoves");
+    $('#addCustomMove').click(function () {
+        fieldMoveExtra.addChoice();
+    });
 
     $(document).on('click', '.editable', Field.clickEditable);
 
