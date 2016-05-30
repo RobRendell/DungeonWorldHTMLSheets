@@ -285,7 +285,7 @@ dt {
     -webkit-page-break-after: avoid;
 }
 
-dd + dt {
+dd + dt, dd + dd {
     margin-top: 3pt;
 }
 

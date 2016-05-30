@@ -6,20 +6,17 @@ BUGS
 
 TODO
 
-* Compendium class support.
-
-* Add "Along with" option (or something) when defining moves, in the same drop-down as "Requires" and "Replaces".
-    Hide it for starting moves, show for advanced moves.
-
 * Sourcebook list, tickable to include/exclude.
-
-* Do I want explicitly configured items through Source Data and a full inventory editor in-sheet?
 
 * Make hide/show unticked options per-field?
 
 * Option/control to merge custom data from save file (overwriting same things), so GMs can send out updates and players
     can merge them into existing character (or for starting a new character based on the same custom data as an existing
     one).
+
+* Allow checked sub-options in extra/race/alignment moves (have a 3rd+ element in the value).
+
+* Try to do automatic mark-up as much as possible.  At the least should be able to do bullet list and check list without using html.
 
 * Moves should be able to add modifiers to the character if they're selected.  Multi-class moves in particular need to do something to add the other class' move details.
 

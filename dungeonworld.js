@@ -778,6 +778,9 @@ var FieldDescriptionList = Field.extend({
             return this._super(value);
         } else {
             var newValue = value.split(': ');
+            if (newValue.length > 2) {
+                newValue = [ newValue.shift(), newValue.join(': ') ];
+            }
             while (newValue.length < 2) {
                 newValue.push('');
             }
@@ -897,14 +900,35 @@ var FieldMoveChoice = Field.extend({
         return cmp(aOrder, bOrder) || cmp(aName, bName);
     },
 
-    getMoveFromPanel: function getMoveFromPanel(movePanel) {
+    appendMoveFromPanel: function appendMoveFromPanel(movePanel, defList, element) {
+        var name = movePanel.data.get("name");
         var move = movePanel.data.get("move");
+        move = move.replace(/(\+?(Str|Dex|Con|Int|Wis|Cha))\b/g, '<span class="roll">$1</span>');
+        move = move.replace(/ (On a (10\+|6-))/g, ' &#10041;&nbsp;$1');
+        move = move.replace(/ (On a) 7-9/g, ' &#10041;&nbsp;$1 7&ndash;9');
         var prerequisiteType = movePanel.data.get("prerequisiteType");
         var prerequisite = movePanel.data.get("prerequisite");
         if (prerequisiteType == 'Requires' || prerequisiteType == 'Replaces') {
             move = '<i>' + prerequisiteType + ': ' + prerequisite + '</i><br/>' + move;
         }
-        return move;
+        var preamble = movePanel.data.get('preamble');
+        var heading;
+        if (defList) {
+            if (preamble) {
+                $('<dd/>').html(preamble).appendTo(element);
+            }
+            heading = $('<dt/>').html(name);
+            heading.appendTo(element);
+            $('<dd/>').html(move).appendTo(element);
+        } else {
+            if (preamble) {
+                $('<div/>').html(preamble).appendTo(element);
+            }
+            heading = $('<div/>').html(name);
+            heading.appendTo(element);
+            $('<div/>').html(move).appendTo(element);
+        }
+        return heading;
     },
 
     renderField: function renderField() {
@@ -916,14 +940,11 @@ var FieldMoveChoice = Field.extend({
             this.element.append($('<b/>').html(this.textBefore));
         }
         $.each(result, $.proxy(function (index, movePanel) {
-            var name = movePanel.data.get("name");
-            var move = this.getMoveFromPanel(movePanel);
             if (this.lhsElement.length > 0 && movePanel.data.get('order') == 'LHS') {
-                $('<div/>').addClass('heading').addClass('left').html(name).appendTo(this.lhsElement);
-                $('<div/>').html(move).appendTo(this.lhsElement);
+                var heading = this.appendMoveFromPanel(movePanel, false, this.lhsElement);
+                heading.addClass('heading').addClass('left');
             } else {
-                $('<dt/>').html(name).appendTo(this.element);
-                $('<dd/>').html(move).appendTo(this.element);
+                this.appendMoveFromPanel(movePanel, true, this.element);
             }
         }, this));
         if (result.length > 0 && this.textAfter) {
@@ -1039,10 +1060,8 @@ var FieldMoveExtra = FieldMoveChoice.extend({
                 if (this.value.length == remaining--) {
                     $('<span/>').text('Additional moves you know:').addClass('moveHeader').appendTo(this.element);
                 }
-                var name = movePanel.data.get("name");
-                var move = this.getMoveFromPanel(movePanel);
-                $('<dt/>').html(name).addClass('ticked editable').appendTo(this.element);
-                $('<dd/>').html(move).appendTo(this.element);
+                var heading = this.appendMoveFromPanel(movePanel, true, this.element);
+                heading.addClass('ticked editable');
             }
         }, this));
         while (remaining-- > 0) {
@@ -1324,7 +1343,23 @@ $(document).ready(function () {
     }, this));
 
     new Field("raceHeading");
-    new FieldDescriptionList("race");
+    var raceField = new FieldDescriptionList("race", undefined, function () {
+        var result = [];
+        CustomPanel.prototype.all.get('Race').each(function (index, panel) {
+            panel.subPanels.each(function (key, subPanel) {
+                if (subPanel.data.get('className') == '*') {
+                    result.push(panel.data.get('name') + ': ' + subPanel.data.get('move'));
+                }
+            });
+        });
+        return result.sort();
+    });
+    $('#addCustomRace').click($.proxy(function () {
+        raceField.loadSavedValue(['Click to edit']);
+        $('#addCustomRace').hide();
+    }, this));
+
+
     new Field("bondsHeading");
     new FieldUnorderedList("bonds");
 
@@ -1375,7 +1410,7 @@ $(document).ready(function () {
             };
         });
     });
-    menu.addMenuItem("Save As...", function () {
+    menu.addMenuItem("Save", function () {
         var fields = {};
         $.each(Field.getAll('.editable'), function (index, field) {
             fields[field.name] = field.getSaveValue();
@@ -1406,6 +1441,9 @@ $(document).ready(function () {
     menu.addMenuItem("Edit Source Data...", function () {
         topPanel.showPanel();
     });
+
+    menu.addMenuItem('<hr/>');
+    menu.addMenuItem("The menu and red text<br/>will not be printed.");
 
     $.extend({
         addSourceData: function addSourceData(data) {

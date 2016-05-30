@@ -585,7 +585,8 @@ var TopPanel = CustomPanel.extend({
                 result.push(entry);
             } else if (entry.indexOf(result[result.length - 1]) != 0) {
                 var lastCommonSpace = this.indexOfLastCommonSpace(result[result.length - 1], entry);
-                if (lastCommonSpace == -1) {
+                // ignore "The " as a common prefix
+                if (lastCommonSpace == -1 || (lastCommonSpace == 3 && entry.indexOf('The ') == 0)) {
                     result.push(entry);
                 } else {
                     result[result.length - 1] = result[result.length - 1].substring(0, lastCommonSpace + 1);
@@ -998,6 +999,7 @@ var RaceClassPanel = CustomPanel.extend({
     renderPanel: function renderPanel() {
         this._super();
         this.appendFormTableRow('Class Name', 'className', 'text', CustomPanel.prototype.all.get('Class').keys().sort());
+        this.appendFormTableRow('A class name of * will make this race move available (as a custom race) for any class.');
         this.appendFormTableRow('Move', 'move', 'textarea').attr('rows', 4).attr('cols', 120);
         this.appendFormTableRow('Suggested names<br/>(comma-separated)', 'names').css('width', "100%");
         this.appendFooter();
@@ -1034,7 +1036,7 @@ var ClassMovePanel = CustomPanel.extend({
 
     getShortName: function getShortName() {
         var className = this.data.get('className') || '';
-        var result = className.replace(/^The /, '');
+        var result = className;
         var minLevel = this.data.get('minLevel');
         if (minLevel == 'Starting') {
             result += ' Starting Move';
@@ -1099,6 +1101,7 @@ var ClassMovePanel = CustomPanel.extend({
             }
         });
         prereqType.change();
+        this.appendFormTableRow('Preamble', 'preamble', 'textarea').attr('rows', 1).attr('cols', 120);
         this.appendFormTableRow('Move', 'move', 'textarea').attr('rows', 4).attr('cols', 120);
         this.appendFormTableRow('Display order is a number, used to sort moves (lower numbers occur first).  Moves with the same display order are sorted alphabetically.  Moves with blank display orders are treated as having a value of 1000.  A Starting move with the special value of LHS is shown in the left-hand column.');
         this.appendFormTableRow('Display order', 'order');
