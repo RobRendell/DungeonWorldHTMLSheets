@@ -1004,7 +1004,8 @@ var FieldMoveExtra = FieldMoveChoice.extend({
 
     resetInput: function resetInput(target) {
         this.element = target;
-        var text = target.text();
+        var index = $(target).parent().prevAll('dt').length;
+        var text = this.value[index];
         if (text.indexOf(': ') < 0) {
             text = '';
         }
@@ -1018,7 +1019,11 @@ var FieldMoveExtra = FieldMoveChoice.extend({
             this._super(value);
         } else {
             var index = this.input.parent().prevAll('dt').length;
-            this.value[index] = value;
+            if (value) {
+                this.value[index] = value;
+            } else {
+                this.value.splice(index, 1);
+            }
             this._super(this.value);
         }
     },
