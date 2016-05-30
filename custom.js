@@ -565,6 +565,36 @@ var TopPanel = CustomPanel.extend({
         return 'Custom Panel';
     },
 
+    indexOfLastCommonSpace: function indexOfLastCommonSpace(s1, s2) {
+        var lastSpace = -1;
+        for (var index = 0; index < s1.length && index < s2.length; ++index) {
+            if (s1[index] != s2[index]) {
+                return lastSpace;
+            } else if (s1[index] == ' ') {
+                lastSpace = index;
+            }
+        }
+        return lastSpace;
+    },
+
+    getCommonPrefixWords: function getCommonPrefixWords(list) {
+        var result = [ ];
+        for (var index = 0; index < list.length; ++index) {
+            var entry = list[index];
+            if (index == 0) {
+                result.push(entry);
+            } else if (entry.indexOf(result[result.length - 1]) != 0) {
+                var lastCommonSpace = this.indexOfLastCommonSpace(result[result.length - 1], entry);
+                if (lastCommonSpace == -1) {
+                    result.push(entry);
+                } else {
+                    result[result.length - 1] = result[result.length - 1].substring(0, lastCommonSpace + 1);
+                }
+            }
+        }
+        return result;
+    },
+
     treeControlFn: function treeControlFn (parentNode, refreshOnly) {
         var names = [];
         if (parentNode.level == 0) {
@@ -594,25 +624,17 @@ var TopPanel = CustomPanel.extend({
             var book = Sourcebook.prototype.all.get(sourceName);
             var entries = book.data.get(type);
             if (parentNode.level == 2 && entries.length > 20) {
-                var previous = null;
-                $.each(entries.keys().sort(), function (index, name) {
-                    var firstSpace = name.indexOf(' ');
-                    var firstWord = (firstSpace >= 0) ? name.slice(0, firstSpace + 1) : name;
-                    if (firstWord != previous) {
-                        names.push(firstWord);
-                        previous = firstWord;
-                    }
-                });
+                names = this.getCommonPrefixWords(entries.keys().sort());
                 // Don't bother doing the extra level for things that don't break down nicely.
                 if (names.length > entries.length/2 || names.length < 3) {
                     names = [];
                 }
             } else if (parentNode.level == 3) {
-                // Filter entries by first word
-                var firstWord = parentNode.text;
+                // Filter entries by parent's prefix
+                var prefix = parentNode.text;
                 var newEntries = new Hash();
                 entries.each(function (name, entry) {
-                    if (name.indexOf(firstWord) == 0) {
+                    if (name.indexOf(prefix) == 0) {
                         newEntries.set(name, entry);
                     }
                 });
@@ -1015,9 +1037,9 @@ var ClassMovePanel = CustomPanel.extend({
         var result = className.replace(/^The /, '');
         var minLevel = this.data.get('minLevel');
         if (minLevel == 'Starting') {
-            result += '  Starting Move';
+            result += ' Starting Move';
         } else if (minLevel == 1) {
-            result += '  Optional Starting Move';
+            result += ' Optional Starting Move';
         } else {
             result += ' Advanced Move (';
             if (this.data.get('maxLevel') > this.data.get('minLevel')) {
