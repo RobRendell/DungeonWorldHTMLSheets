@@ -14,6 +14,8 @@ TODO
     can merge them into existing character (or for starting a new character based on the same custom data as an existing
     one).
 
+* New-style skin (or just new html file): https://plus.google.com/u/0/communities/100084733231320276299/stream/64e0b2b8-d8fc-48dd-91de-442616ae3338
+
 * Allow checked sub-options in extra/race/alignment moves (have a 3rd+ element in the value).
 
 * Try to do automatic mark-up as much as possible.  At the least should be able to do bullet list and check list without using html.

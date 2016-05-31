@@ -860,7 +860,7 @@ var AlignmentPanel = CustomPanel.extend({
     className: 'AlignmentPanel',
 
     getShortName: function getShortName() {
-        return this.data.get('alignment') + ' Alignment Move: ' + this.data.get('move');
+        return this.data.get('alignment') + ' Alignment Move "' + this.data.get('move') + '"';
     },
 
     renderPanel: function renderPanel(hideSource) {

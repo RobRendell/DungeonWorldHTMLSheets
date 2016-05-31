@@ -904,8 +904,8 @@ var FieldMoveChoice = Field.extend({
         var name = movePanel.data.get("name");
         var move = movePanel.data.get("move");
         move = move.replace(/(\+?(Str|Dex|Con|Int|Wis|Cha))\b/g, '<span class="roll">$1</span>');
-        move = move.replace(/ (On a (10\+|6-))/g, ' &#10041;&nbsp;$1');
         move = move.replace(/ (On a) 7-9/g, ' &#10041;&nbsp;$1 7&ndash;9');
+        move = move.replace(/ (On a ([1-9][0-9]*[-+]))/g, ' &#10041;&nbsp;$1');
         var prerequisiteType = movePanel.data.get("prerequisiteType");
         var prerequisite = movePanel.data.get("prerequisite");
         if (prerequisiteType == 'Requires' || prerequisiteType == 'Replaces') {
@@ -1025,7 +1025,7 @@ var FieldMoveExtra = FieldMoveChoice.extend({
 
     resetInput: function resetInput(target) {
         this.element = target;
-        var index = $(target).parent().prevAll('dt').length;
+        var index = $(target).prevAll('dt').length;
         var text = this.value[index];
         if (text.indexOf(': ') < 0) {
             text = '';
@@ -1052,21 +1052,24 @@ var FieldMoveExtra = FieldMoveChoice.extend({
     renderField: function renderField() {
         this.element = $('#' + this.name);
         this.element.empty();
+        if (this.value.length > 0) {
+            $('<span/>').text('Additional moves you know:').addClass('moveHeader').appendTo(this.element);
+        }
         var allMoves = CustomPanel.prototype.all.get('Class Move');
-        var remaining = this.value.length;
+        var keyToMove = new Hash();
         allMoves.each($.proxy(function (moveId, movePanel) {
             var key = this.getKeyFromPanel(movePanel);
-            if (this.value.indexOf(key) >= 0) {
-                if (this.value.length == remaining--) {
-                    $('<span/>').text('Additional moves you know:').addClass('moveHeader').appendTo(this.element);
-                }
+            keyToMove.set(key, movePanel);
+        }, this));
+        $.each(this.value, $.proxy(function (index, key) {
+            var movePanel = keyToMove.get(key);
+            if (movePanel) {
                 var heading = this.appendMoveFromPanel(movePanel, true, this.element);
                 heading.addClass('ticked editable');
+            } else {
+                $('<dt/>').html(key).addClass('editable').appendTo(this.element);
             }
         }, this));
-        while (remaining-- > 0) {
-            $('<dt/>').html('Click to edit').addClass('editable').appendTo(this.element);
-        }
     },
 
     addChoice: function addChoice() {
