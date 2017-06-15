@@ -266,6 +266,32 @@ var ModifierAddField = Modifier.extend({
 
 });
 
+// -------------------- ModifierShowHideField shows/hides one field based on the value of another --------------------
+
+var ModifierShowHideField = Modifier.extend({
+
+    init: function(fieldId, otherFieldId, showRE) {
+        this.otherField = Field.getField(otherFieldId);
+        this.showRE = showRE;
+        this._super(fieldId, true);
+    },
+
+    getSourceFields: function getSourceFields() {
+        return [ this.otherField ];
+    },
+
+    apply: function apply(value) {
+        var field = Field.getField(this.fieldId);
+        if (this.showRE.exec(this.otherField.getValue())) {
+            field.element.show();
+        } else {
+            field.element.hide();
+        }
+        return value;
+    }
+
+});
+
 // -------------------- ModifierClass is enabled when the className field has the given value --------------------
 
 var ModifierClass = Modifier.extend({
@@ -1318,6 +1344,7 @@ $(document).ready(function () {
     new FieldInt("hpMaxValue");
     new ModifierAddField("hpMaxValue", "baseHp");
     new ModifierAddField("hpMaxValue", "constitution");
+    new ModifierShowHideField("hpMaxValue", "constitution", /[0-9]+/);
     new FieldInt("armourValue");
 
     new FieldInt("level");
