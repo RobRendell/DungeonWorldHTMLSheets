@@ -27,7 +27,6 @@ svg {
 .page {
     page-break-inside: avoid;
     position: relative;
-    margin-bottom: 10pt;
     width: 210mm;
     margin: 0 auto;
 }
@@ -66,9 +65,8 @@ svg {
     font-weight: bold;
     font-size: 14.4pt;
     text-indent: 1.0em;
-    background-repeat: no-repeat;
     background-size: 100% 100%;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'><path d='M 0 0 L 100 0 L 100 19 Q 50 15 0 19 Z' stroke='black' stroke-width='1' fill='black' /></svg> ");
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'><path d='M 0 0 L 100 0 L 100 19 Q 50 15 0 19 Z' stroke='black' stroke-width='1' fill='black' /></svg> ") no-repeat;
     position: relative;
     height: 20pt;
 }
@@ -282,7 +280,6 @@ svg {
 dt {
     page-break-after: avoid;
     break-after: avoid;
-    -webkit-page-break-after: avoid;
 }
 
 dd + dt, dd + dd {
@@ -367,9 +364,9 @@ dd + dt, dd + dd {
 
 .twoColumn {
     -moz-column-count: 2;
-    -moz-column-gap; 1em;
+    -moz-column-gap: 1em;
     -webkit-column-count: 2;
-    -webkit-column-gap; 1em;
+    -webkit-column-gap: 1em;
 }
 
 ul, dl {
@@ -381,9 +378,8 @@ ul, dl {
     color: white;
     font-variant: small-caps;
     font-size: 36pt;
-    background-repeat: no-repeat;
     background-size: 100% 100%;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><g><svg viewBox='0 0 100 50' preserveAspectRatio='none'><path d='M 0 50 L 100 50 L 100 1 Q 50 8 0 1 Z' stroke='black' stroke-width='1' fill='black' /></svg><svg viewBox='0 0 190 50' preserveAspectRatio='xMaxYMin'><text x='1' y='45' fill='white' font-family='Verdana' font-weight='bold' font-size='16'>XP</text><text x='1' y='22' fill='white' font-family='Verdana' font-weight='bold' font-size='16' style='font-variant: small-caps'>Level</text></svg></g></svg> ");
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><g><svg viewBox='0 0 100 50' preserveAspectRatio='none'><path d='M 0 50 L 100 50 L 100 1 Q 50 8 0 1 Z' stroke='black' stroke-width='1' fill='black' /></svg><svg viewBox='0 0 190 50' preserveAspectRatio='xMaxYMin'><text x='1' y='45' fill='white' font-family='Verdana' font-weight='bold' font-size='16'>XP</text><text x='1' y='22' fill='white' font-family='Verdana' font-weight='bold' font-size='16' style='font-variant: small-caps'>Level</text></svg></g></svg> ") no-repeat;
     position: relative;
     height: 60pt;
     padding-left: 110px;
@@ -468,5 +464,4 @@ ul, dl {
     page-break-inside: avoid;
     page-break-after: avoid;
     break-after: avoid;
-    -webkit-page-break-after: avoid;
 }

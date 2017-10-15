@@ -149,10 +149,10 @@ var CustomPanel = Class.extend({
 
     typeMap: new Hash(),
 
-    init: function init(data, dontEval) {
-        this.custom = false;
+    init: function init(data, dontEval, custom) {
+        this.custom = !!custom;
         this.subPanels = new Hash();
-        this.setData(data);
+        this.setData(data, custom);
         this.compiled = [];
         if (!dontEval)
         {
@@ -173,7 +173,7 @@ var CustomPanel = Class.extend({
         this.data = new Hash(data);
         if (this.data.contains('subPanels')) {
             var subPanelJSON = this.data.remove('subPanels');
-            this.buildSubPanelsFromJSON(subPanelJSON, custom);
+            return this.buildSubPanelsFromJSON(subPanelJSON, custom);
         }
     },
 
@@ -275,7 +275,7 @@ var CustomPanel = Class.extend({
     },
 
     newSubPanel: function newSubPanel(panelType, data, custom) {
-        var panel = new panelType(data, true);
+        var panel = new panelType(data, true, custom);
         if (custom) {
             panel.makeCustom();
         }
@@ -287,6 +287,9 @@ var CustomPanel = Class.extend({
         var previous = this.subPanels.set(panel.getId(), panel);
         if (panel.custom && previous && !previous.custom) {
             this.nonCustomPanels.set(previous.getId(), previous);
+        }
+        if (previous) {
+            previous.removeCompiled();
         }
         panel.parentPanel = this;
         panel.addToSource();
@@ -448,9 +451,11 @@ var CustomPanel = Class.extend({
     },
 
     removeCompiled: function removeCompiled() {
-        $.each(this.compiled, function (index, modifier) {
-            modifier.remove();
-        });
+        if (this.compiled) {
+            $.each(this.compiled, function (index, modifier) {
+                modifier.remove();
+            });
+        }
         this.compiled = [];
         this.subPanels.each(function (key, subPanel) {
             subPanel.removeCompiled();
@@ -676,9 +681,14 @@ var TopPanel = CustomPanel.extend({
     },
 
     setData: function setData(data, custom) {
-        this._super(data, custom);
+        var subPanels = this._super(data, custom);
         if (this.tree) {
             this.tree.refresh();
+        }
+        if (subPanels) {
+            $.each(subPanels, function (index, subPanel) {
+                subPanel.compile(true);
+            });
         }
     }
 
@@ -1035,16 +1045,15 @@ var ClassMovePanel = CustomPanel.extend({
     className: 'ClassMovePanel',
 
     getShortName: function getShortName() {
-        var className = this.data.get('className') || '';
-        var result = className;
+        var result = this.data.get('className') || '';
         var minLevel = this.data.get('minLevel');
-        if (minLevel == 'Starting') {
+        if (minLevel === 'Starting') {
             result += ' Starting Move';
-        } else if (minLevel == 1) {
+        } else if (minLevel === 1) {
             result += ' Optional Starting Move';
         } else {
             result += ' Advanced Move (';
-            if (this.data.get('maxLevel') > this.data.get('minLevel')) {
+            if (+this.data.get('maxLevel') > +this.data.get('minLevel')) {
                 result += 'levels ' + this.data.get('minLevel') + '&ndash;' + this.data.get('maxLevel');
             } else {
                 result += 'level ' + this.data.get('minLevel');

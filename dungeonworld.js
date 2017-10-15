@@ -576,22 +576,22 @@ Field.clickEditable = function (evt) {
     }
 }
 
-Field.loadFields = function (data, first) {
-    $.each(first, function (index, name) {
+Field.loadSpecificFields = function (data, fields) {
+    $.each(fields, function (index, name) {
         var field = Field.getField(name);
-        if (field && data[name] != field.getDefaultValue()) {
+        if (field && data[name] !== field.getDefaultValue()) {
             field.loadSavedValue(data[name]);
         }
     });
-    $.each(Object.keys(data), function (index, name) {
-        if (first.indexOf(name) < 0) {
-            var field = Field.getField(name);
-            if (field && data[name] != field.getDefaultValue()) {
-                field.loadSavedValue(data[name]);
-            }
-        }
+};
+
+Field.loadFields = function (data, firstKeys) {
+    this.loadSpecificFields(data, firstKeys);
+    var afterKeys = Object.keys(data).filter(function (key) {
+        return (firstKeys.indexOf(key) < 0);
     });
-}
+    this.loadSpecificFields(data, afterKeys);
+};
 
 // -------------------- FieldInt holds an integer value --------------------
 
@@ -1435,8 +1435,8 @@ $(document).ready(function () {
             reader.readAsText(file);
             reader.onload = function (evt) {
                 var saveData = JSON.parse(reader.result);
-                Field.loadFields(saveData.fields, [ 'ongoingGear', 'className' ]);
-                topPanel.setData(saveData.sourceData, true)
+                topPanel.setData(saveData.sourceData, true);
+                Field.loadFields(saveData.fields, ['ongoingGear', 'className']);
             };
         });
     });
